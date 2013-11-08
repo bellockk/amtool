@@ -1,0 +1,7 @@
+*.pyc
+*.o
+.sconsign.dblite
+build
+dist
+config.log
+.ropeproject
