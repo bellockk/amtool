@@ -90,10 +90,15 @@ USAGE
                             '--version',
                             action='version',
                             version=program_version_message)
+
+        # Create subparsers for each tool
         commands = [d[len('amt-'):] for d in os.listdir(ROOT_PATH) if
                     d.startswith('amt-')]
-        parser.add_argument('command',
-                            choices=commands)
+        # Note: The metavar being set to an empty string removes the redundant
+        # listing of subcommands.
+        subparsers = parser.add_subparsers(title='commands', metavar='')
+        for cmd in commands:
+            subparsers.add_parser(cmd, help='%s help' % cmd)
 
         # Process arguments
         args = parser.parse_args()
