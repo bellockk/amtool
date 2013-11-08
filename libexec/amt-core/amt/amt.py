@@ -31,6 +31,8 @@ DEBUG = 0
 TESTRUN = 0
 PROFILE = 0
 
+SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
+ROOT_PATH = os.path.dirname(SCRIPT_PATH)
 
 class CLIError(Exception):
 
@@ -73,6 +75,7 @@ USAGE
 ''' % (program_shortdesc, str(__date__))
 
     try:
+
         # Setup argument parser
         parser = ArgumentParser(description=program_license,
                                 epilog=program_epilog,
@@ -87,6 +90,10 @@ USAGE
                             '--version',
                             action='version',
                             version=program_version_message)
+        commands = [d[len('amt-'):] for d in os.listdir(ROOT_PATH) if
+                    d.startswith('amt-')]
+        parser.add_argument('command',
+                            choices=commands)
 
         # Process arguments
         args = parser.parse_args()
