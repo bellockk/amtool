@@ -1,0 +1,6 @@
+#!/bin/sh
+
+PYTHONCOM=$(which python)
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+${PYTHONCOM} ${DIR}/../libexec/amt-core/amt/amt.py "$@"
