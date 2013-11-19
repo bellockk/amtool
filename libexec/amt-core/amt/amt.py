@@ -34,6 +34,7 @@ PROFILE = 0
 SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
 ROOT_PATH = os.path.dirname(SCRIPT_PATH)
 
+
 class CLIError(Exception):
 
     """Generic exception to raise and log different fatal errors."""
@@ -80,16 +81,9 @@ USAGE
         parser = ArgumentParser(description=program_license,
                                 epilog=program_epilog,
                                 formatter_class=RawDescriptionHelpFormatter)
-        parser.add_argument("-v",
-                            "--verbose",
-                            dest="verbose",
-                            action="count",
-                            default=0,
-                            help="set verbosity level [default: %(default)s]")
-        parser.add_argument('-V',
-                            '--version',
-                            action='version',
-                            version=program_version_message)
+
+        # Add parsing options
+        _fill_parser(parser, program_version_message=program_version_message)
 
         # Create subparsers for each tool
         commands = [d[len('amt-'):] for d in os.listdir(ROOT_PATH) if
@@ -119,6 +113,20 @@ USAGE
         sys.stderr.write(program_name + ": " + repr(e) + "\n")
         sys.stderr.write(indent + "  for help use --help")
         return 2
+
+
+def _fill_parser(parser, **kw):
+    """Fill a command line parser."""
+    parser.add_argument("-v",
+                        "--verbose",
+                        dest="verbose",
+                        action="count",
+                        default=0,
+                        help="set verbosity level [default: %(default)s]")
+    parser.add_argument('-V',
+                        '--version',
+                        action='version',
+                        version=kw['program_version_message'])
 
 
 def _replacemany(adict, astring, prefix='<', suffix='>'):

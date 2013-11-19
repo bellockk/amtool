@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # encoding: utf-8
 """
-amt -- Artifact Management Tool
+amt-init -- Artifact Management Tool initialization.
 
 amt is a Tool for managing software artifacts
 
@@ -12,12 +12,12 @@ It defines classes_and_methods and a command line interface
 @copyright:
 
 @contact:    ken@bellock.net
+
 """
 
 import sys
 import os
 import re
-import yaml
 
 from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
@@ -31,22 +31,24 @@ DEBUG = 0
 TESTRUN = 0
 PROFILE = 0
 
+
 class CLIError(Exception):
-    """
-    Generic exception to raise and log different fatal errors.
-    """
+
+    """Generic exception to raise and log different fatal errors."""
+
     def __init__(self, msg):
         super(CLIError).__init__(type(self))
         self.msg = "Error: %s" % msg
+
     def __str__(self):
         return self.msg
+
     def __unicode__(self):
         return self.msg
 
-def main(argv=None): # IGNORE:C0111
-    """
-    Command line options.
-    """
+
+def main(argv=None):  # IGNORE:C0111
+    """Command line options."""
 
     if argv is None:
         argv = sys.argv
@@ -56,7 +58,8 @@ def main(argv=None): # IGNORE:C0111
     program_name = os.path.basename(sys.argv[0])
     program_version = "v%s" % __version__
     program_build_date = str(__updated__)
-    program_version_message = '%%(prog)s %s (%s)' % (program_version, program_build_date)
+    program_version_message = '%%(prog)s %s (%s)' % (program_version,
+                                                     program_build_date)
     program_shortdesc = __import__('__main__').__doc__.split("\n")[1]
     program_epilog = ''
     program_license = '''%s
@@ -71,9 +74,13 @@ USAGE
 
     try:
         # Setup argument parser
-        parser = ArgumentParser(description=program_license,epilog=program_epilog, formatter_class=RawDescriptionHelpFormatter)
-        parser.add_argument("-v", "--verbose", dest="verbose", action="count",default=0, help="set verbosity level [default: %(default)s]")
-        parser.add_argument('-V', '--version', action='version', version=program_version_message)
+        parser = ArgumentParser(description=program_license,
+                                epilog=program_epilog,
+                                formatter_class=RawDescriptionHelpFormatter)
+
+        # Add command line arguments
+        _fill_parser(parser,
+                     program_version_message=program_version_message)
 
         # Process arguments
         args = parser.parse_args()
@@ -96,9 +103,23 @@ USAGE
         return 2
 
 
-def _replacemany(adict, astring,prefix='<',suffix='>'):
+def _fill_parser(parser, **kw):
+    """Fill parser with commands."""
+    parser.add_argument("-v",
+                        "--verbose",
+                        dest="verbose",
+                        action="count",
+                        default=0,
+                        help="set verbosity level [default: %(default)s]")
+    parser.add_argument('-V',
+                        '--version',
+                        action='version',
+                        version=kw['program_version_message'])
+
+
+def _replacemany(adict, astring, prefix='<', suffix='>'):
     """
-    Replaces keys within a string using the given dictionary of key:value pairs.
+    Replace keys within a string using the given dictionary of key:value pairs.
 
     Parameters
     ----------
@@ -111,9 +132,14 @@ def _replacemany(adict, astring,prefix='<',suffix='>'):
     -------
     result : string
         Input string with replacements performed.
+
     """
-    re_obj = re.compile('|'.join(re.escape('%s%s%s'%(prefix,s,suffix)) for s in adict))
-    return re_obj.sub(lambda m: str(adict[m.group()[len(prefix):len(m.group())-len(suffix)]]), astring)
+    re_obj = re.compile(
+        '|'.join(re.escape('%s%s%s' % (prefix, s, suffix)) for s in adict))
+    return re_obj.sub(
+        lambda m: str(
+            adict[m.group()[len(prefix):len(m.group()) - len(suffix)]]),
+        astring)
 
 if __name__ == "__main__":
     if DEBUG:
