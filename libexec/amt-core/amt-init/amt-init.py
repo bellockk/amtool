@@ -18,6 +18,7 @@ It defines classes_and_methods and a command line interface
 import sys
 import os
 import re
+import shutil
 
 from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
@@ -85,12 +86,9 @@ USAGE
         # Process arguments
         args = parser.parse_args()
 
-        verbose = args.verbose
+        # Apply arguments
+        return _apply_args(args)
 
-        if verbose > 0:
-            print("Verbose mode on")
-
-        return 0
     except KeyboardInterrupt:
         ### handle keyboard interrupt ###
         return 0
@@ -102,6 +100,23 @@ USAGE
         sys.stderr.write(indent + "  for help use --help")
         return 2
 
+
+def _apply_args(args):
+    """Utilize parsed arguments."""
+    verbose = args.verbose
+
+    if verbose > 0:
+        print("Verbose mode on")
+
+    if os.path.exists('.amt'):
+        shutil.rmtree('.amt')
+        action = 'Reinitialized existing'
+    else:
+        action = 'Initialized empty'
+    os.makedirs('.amt')
+    print('%s AMT project in %s' % (action, os.path.abspath('.amt')))
+
+    return 0
 
 def _fill_parser(parser, **kw):
     """Fill parser with commands."""

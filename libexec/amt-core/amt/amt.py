@@ -90,17 +90,22 @@ USAGE
                     d.startswith('amt-')]
         # Note: The metavar being set to an empty string removes the redundant
         # listing of subcommands.
-        subparsers = parser.add_subparsers(title='commands', metavar='')
+        subparsers = parser.add_subparsers(title='commands', metavar='', dest='tool')
+        tools= {}
         for cmd in commands:
-            cmdNS = {}
+            tools[cmd] = {}
+            tools[cmd]['Namespace'] = {}
             execfile(os.path.join(ROOT_PATH,
                                   'amt-%s' % cmd,
-                                  'amt-%s.py' % cmd), cmdNS)
-            sp = subparsers.add_parser(cmd, help=cmdNS['__doc__'].split('\n')[1].split(' -- ')[1])
-            cmdNS['_fill_parser'](sp)
+                                  'amt-%s.py' % cmd), tools[cmd]['Namespace'])
+            sp = subparsers.add_parser(cmd, help=tools[cmd]['Namespace']['__doc__'].split('\n')[1].split(' -- ')[1])
+            tools[cmd]['Parser'] = sp
+            tools[cmd]['Namespace']['_fill_parser'](sp)
 
         # Process arguments
         args = parser.parse_args()
+
+        tools[args.tool]['Namespace']['_apply_args'](args)
 
         verbose = args.verbose
 
