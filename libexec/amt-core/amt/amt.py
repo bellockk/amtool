@@ -92,6 +92,10 @@ USAGE
         # listing of subcommands.
         subparsers = parser.add_subparsers(title='commands', metavar='')
         for cmd in commands:
+            cmdNS = {}
+            execfile(os.path.join(ROOT_PATH,
+                                  'amt-%s' % cmd,
+                                  'amt-%s.py' % cmd), cmdNS)
             subparsers.add_parser(cmd, help='%s help' % cmd)
 
         # Process arguments
