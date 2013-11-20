@@ -111,35 +111,12 @@ def _fill_parser(parser, **kw):
                         action="count",
                         default=0,
                         help="set verbosity level [default: %(default)s]")
-    parser.add_argument('-V',
-                        '--version',
-                        action='version',
-                        version=kw['program_version_message'])
+    if 'program_version_message' in kw:
+        parser.add_argument('-V',
+                            '--version',
+                            action='version',
+                            version=kw['program_version_message'])
 
-
-def _replacemany(adict, astring, prefix='<', suffix='>'):
-    """
-    Replace keys within a string using the given dictionary of key:value pairs.
-
-    Parameters
-    ----------
-    adict : dictionary
-        Dictionary of replace key - replace value pairs.
-    astring : string
-        String to perform the replacement on.
-
-    Returns
-    -------
-    result : string
-        Input string with replacements performed.
-
-    """
-    re_obj = re.compile(
-        '|'.join(re.escape('%s%s%s' % (prefix, s, suffix)) for s in adict))
-    return re_obj.sub(
-        lambda m: str(
-            adict[m.group()[len(prefix):len(m.group()) - len(suffix)]]),
-        astring)
 
 if __name__ == "__main__":
     if DEBUG:

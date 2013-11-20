@@ -96,7 +96,8 @@ USAGE
             execfile(os.path.join(ROOT_PATH,
                                   'amt-%s' % cmd,
                                   'amt-%s.py' % cmd), cmdNS)
-            subparsers.add_parser(cmd, help='%s help' % cmd)
+            sp = subparsers.add_parser(cmd, help=cmdNS['__doc__'].split('\n')[1].split(' -- ')[1])
+            cmdNS['_fill_parser'](sp)
 
         # Process arguments
         args = parser.parse_args()
