@@ -115,13 +115,18 @@ def _apply_args(args):
         # return 1
         pass
 
-    empty_artifact = {'uid': uuid.uuid4()}
-    print empty_artifact
+    for f in args.FILE:
+        empty_artifact = {'uid': str(uuid.uuid4())}
+        f_obj = open(f, 'w')
+        f_obj.write(yaml.dump(empty_artifact))
+        f_obj.close()
 
     return 0
 
+
 def _fill_parser(parser, **kw):
     """Fill parser with commands."""
+    parser.add_argument("FILE", help="target list", nargs='+')
     parser.add_argument("-v",
                         "--verbose",
                         dest="verbose",
