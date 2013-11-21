@@ -116,9 +116,9 @@ def _apply_args(args):
         pass
 
     for f in args.FILE:
-        empty_artifact = {'uid': str(uuid.uuid4())}
         f_obj = open(f, 'w')
-        f_obj.write(yaml.dump(empty_artifact))
+        f_obj.write(yaml.dump({'uid': str(uuid.uuid4())},
+                              default_flow_style=False))
         f_obj.close()
 
     return 0
