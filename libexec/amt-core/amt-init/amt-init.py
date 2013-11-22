@@ -17,11 +17,17 @@ It defines classes_and_methods and a command line interface
 
 import sys
 import os
-import re
-import shutil
 
 from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
+
+SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
+LIB_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(
+        SCRIPT_PATH))), 'lib')
+
+sys.path.insert(0, LIB_PATH)
+import amt
 
 __all__ = []
 __version__ = '0.0.1'
@@ -108,15 +114,10 @@ def _apply_args(args):
     if verbose > 0:
         print("Verbose mode on")
 
-    if os.path.exists('.amt'):
-        shutil.rmtree('.amt')
-        action = 'Reinitialized existing'
-    else:
-        action = 'Initialized empty'
-    os.makedirs('.amt')
-    print('%s AMT project in %s' % (action, os.path.abspath('.amt')))
+    amt.init()
 
     return 0
+
 
 def _fill_parser(parser, **kw):
     """Fill parser with commands."""

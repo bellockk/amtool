@@ -94,7 +94,7 @@ USAGE
         tools= {}
         for cmd in commands:
             tools[cmd] = {}
-            tools[cmd]['Namespace'] = {}
+            tools[cmd]['Namespace'] = {'__file__':  __file__}
             execfile(os.path.join(ROOT_PATH,
                                   'amt-%s' % cmd,
                                   'amt-%s.py' % cmd), tools[cmd]['Namespace'])
