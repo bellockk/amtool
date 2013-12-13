@@ -14,20 +14,17 @@ It defines classes_and_methods and a command line interface
 @contact:    ken@bellock.net
 
 """
-__all__ = ['init']
+__all__ = ['add']
 
 import os
-import shutil
+import uuid
+import yaml
 
 
-def init(verbose=1):
-    """Utilize parsed arguments."""
-    if os.path.exists('.amt'):
-        shutil.rmtree('.amt')
-        action = 'Reinitialized existing'
-    else:
-        action = 'Initialized empty'
-    os.makedirs('.amt')
-    if verbose > 0:
-        print('%s AMT project in %s' % (action, os.path.abspath('.amt')))
+def add(targets, verbose=1):
+    for target in targets:
+        f_obj = open(target, 'w')
+        f_obj.write(yaml.dump({'uid': str(uuid.uuid4())},
+                              default_flow_style=False))
+        f_obj.close()
     return 0

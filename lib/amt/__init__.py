@@ -8,4 +8,7 @@ __all__.extend(_mod.__all__)
 from gui import *
 import gui as _mod
 __all__.extend(_mod.__all__)
+from cli import *
+import cli as _mod
+__all__.extend(_mod.__all__)
 del(_mod)

@@ -22,6 +22,14 @@ import re
 from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
 
+SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
+LIB_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(
+        SCRIPT_PATH))), 'lib')
+
+sys.path.insert(0, LIB_PATH)
+from amt import CLIError
+
 __all__ = []
 __version__ = '0.0.1'
 __date__ = '2013-11-13'
@@ -33,21 +41,6 @@ PROFILE = 0
 
 SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
 ROOT_PATH = os.path.dirname(SCRIPT_PATH)
-
-
-class CLIError(Exception):
-
-    """Generic exception to raise and log different fatal errors."""
-
-    def __init__(self, msg):
-        super(CLIError).__init__(type(self))
-        self.msg = "Error: %s" % msg
-
-    def __str__(self):
-        return self.msg
-
-    def __unicode__(self):
-        return self.msg
 
 
 def main(argv=None):  # IGNORE:C0111

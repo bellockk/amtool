@@ -27,7 +27,8 @@ LIB_PATH = os.path.join(
         SCRIPT_PATH))), 'lib')
 
 sys.path.insert(0, LIB_PATH)
-import amt
+from amt import CLIError
+from amt import gui
 
 __all__ = []
 __version__ = '0.0.1'
@@ -37,21 +38,6 @@ __updated__ = '2013-11-13'
 DEBUG = 0
 TESTRUN = 1
 PROFILE = 0
-
-
-class CLIError(Exception):
-
-    """Generic exception to raise and log different fatal errors."""
-
-    def __init__(self, msg):
-        super(CLIError).__init__(type(self))
-        self.msg = "Error: %s" % msg
-
-    def __str__(self):
-        return self.msg
-
-    def __unicode__(self):
-        return self.msg
 
 
 def main(argv=None):  # IGNORE:C0111
@@ -114,7 +100,7 @@ def _apply_args(args):
     if verbose > 0:
         print("Verbose mode on")
 
-    amt.gui()
+    gui()
 
     return 0
 

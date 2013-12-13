@@ -17,12 +17,18 @@ It defines classes_and_methods and a command line interface
 
 import sys
 import os
-import shutil
-import yaml
-import uuid
 
 from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
+
+SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
+LIB_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(
+        SCRIPT_PATH))), 'lib')
+
+sys.path.insert(0, LIB_PATH)
+from amt import add
+from amt import CLIError
 
 __all__ = []
 __version__ = '0.0.1'
@@ -32,21 +38,6 @@ __updated__ = '2013-11-13'
 DEBUG = 0
 TESTRUN = 0
 PROFILE = 0
-
-
-class CLIError(Exception):
-
-    """Generic exception to raise and log different fatal errors."""
-
-    def __init__(self, msg):
-        super(CLIError).__init__(type(self))
-        self.msg = "Error: %s" % msg
-
-    def __str__(self):
-        return self.msg
-
-    def __unicode__(self):
-        return self.msg
 
 
 def main(argv=None):  # IGNORE:C0111
@@ -114,14 +105,7 @@ def _apply_args(args):
         # print('Not within an AMT managed folder')
         # return 1
         pass
-
-    for f in args.FILE:
-        f_obj = open(f, 'w')
-        f_obj.write(yaml.dump({'uid': str(uuid.uuid4())},
-                              default_flow_style=False))
-        f_obj.close()
-
-    return 0
+    return add(args.FILE)
 
 
 def _fill_parser(parser, **kw):
