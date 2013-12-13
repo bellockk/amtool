@@ -7,6 +7,8 @@ import os
 import sys
 import time
 
+__all__ = ['gui']
+
 from wx.lib.embeddedimage import PyEmbeddedImage
 
 try:
@@ -3011,8 +3013,9 @@ def runTest(frame, nb, log):
     return win
 
 #----------------------------------------------------------------------
-
-app = wx.App()
-frame = AuiFrame(None)
-frame.Show()
-app.MainLoop()
+def gui():
+    print 'howdy'
+    app = wx.App()
+    frame = AuiFrame(None)
+    frame.Show()
+    app.MainLoop()
