@@ -1,0 +1,19 @@
+tex: |
+  Verification of conformance shall be accomplished using one or more of the following verification methods.
+  \begin{itemize}
+    \item\label{qm:itm:inspection} Inspection 
+
+    Verification by inspection determines conformance to requirements without the use of special laboratory equipment, procedures, test support items or services.  Inspection is generally nondestructive and consists of visual exampinations or simple non-functional, measurements.  Inspection is used to verify construction features, workmanship, and physical dimensions and condition (such as cleanliness, surface finish, paint color, and locking mechanisms).
+    \item\label{qm:itm:analysis} Analysis
+
+    Verification by Analysis utilizes established technical or mathematical models, computer and hardware sumulations, algorithms, charts, graphs, circuit diagrams, or other scientific principles and procedures to provide evidence that the stated requirements were met.
+
+    \item\label{qm:itm:demonstration} Demonstration
+
+    Verification by demonstration is a method of verification that denotes the qualitative determiniation made through observation of the properties of a test article.  This qualitiative determination is made without the use of elaborate measurement equipment and procedures, and is less stringent than detailed tests used to illustrate top-level functional capabilities.  Demonstration requirements are normally implemented within a test plan, observation plan, or test procedure.
+
+    \item\label{qm:itm:test} Test
+
+    Verification by Test is the verification of requirements through the use of special equipment, instrumentation, simulation techniques, precise measurements, and the application of established principles and detailed procedures.  Verification by Test is the actual operation of the propulsion system during ambient conditions or when subjected to special environments to evaluate performance.  Verification by test includes laboratory, ground, and flight tests.  The analysis of data derived from tests is an integral part of the test program, and should not be confused with the analysis as defined in ref{qm:itm:analysis}. Tests shall be used to determine quantitative compliance to requirements and quantitative results.
+
+uid: a7b06e43-02a2-4504-9212-346b8236525d
