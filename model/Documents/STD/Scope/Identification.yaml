@@ -1,5 +1,0 @@
-tex: |
-  This Software Test Description (STD) identifies and describes the tests required to perform Formal Qualification Test (FQT) activities for the ${PROJECT_TITLE_LONG}.
-
-  This document is periodically updated prior to major program milestones.  This documents satisfies ${COMPANY_NAME} software engineering requirements and was written using ${STD_STYLE_SHEET} as a reference.
-uid: 61a5d522-e856-46a2-9de9-0fc72eda38e0
