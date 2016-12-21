@@ -844,8 +844,8 @@ class MainFrame(wx.Frame):
                           CloseButton(True).MaximizeButton(True).
                           MinimizeButton(True))
 
-        self._mgr.AddPane(self.CreateTreeCtrl(), aui.AuiPaneInfo().
-                          Name("autonotebook").Caption("Auto NB").
+        self._mgr.AddPane(self.CreateTextCtrl(), aui.AuiPaneInfo().
+                          Name("autonotebook").Caption("Console").
                           Bottom().Layer(1).Position(1).MinimizeButton(True))
 
         self._mgr.AddPane(SettingsPanel(self, self), aui.AuiPaneInfo().
@@ -2003,7 +2003,7 @@ class MainFrame(wx.Frame):
               "Author: Kenneth E. Bellock\n\n" + \
               "Please Report Any Bug/Requests Of Improvements\n"
 
-        dlg = wx.MessageDialog(self, msg, "AMT Demo",
+        dlg = wx.MessageDialog(self, msg, "AMT",
                                wx.OK | wx.ICON_INFORMATION)
 
         if wx.Platform != '__WXMAC__':
@@ -2017,7 +2017,7 @@ class MainFrame(wx.Frame):
         if ctrl_text.strip():
             text = ctrl_text
         else:
-            text = "This is text box %d" % self._textCount
+            text = ""
             self._textCount += 1
 
         return wx.TextCtrl(self, -1, text, wx.Point(0, 0), wx.Size(150, 90),
@@ -2195,65 +2195,6 @@ def GetIntroText():
         "</body></html>")
 
     return text
-
-
-class ParentFrame(aui.AuiMDIParentFrame):
-
-    def __init__(self, parent):
-
-        aui.AuiMDIParentFrame.__init__(
-            self, parent, -1, title="AGW AuiMDIParentFrame",
-            size=(640, 480), style=wx.DEFAULT_FRAME_STYLE)
-        self.count = 0
-
-        # set frame icon
-        # self.SetIcon(images.Mondrian.GetIcon())
-
-        mb = self.MakeMenuBar()
-        self.SetMenuBar(mb)
-        self.CreateStatusBar()
-
-    def MakeMenuBar(self):
-
-        mb = wx.MenuBar()
-        menu = wx.Menu()
-        item = menu.Append(-1, "New child window\tCtrl-N")
-        self.Bind(wx.EVT_MENU, self.OnNewChild, item)
-        item = menu.Append(-1, "Close parent")
-        self.Bind(wx.EVT_MENU, self.OnDoClose, item)
-        mb.Append(menu, "&File")
-        return mb
-
-    def OnNewChild(self, evt):
-
-        self.count += 1
-        child = ChildFrame(self, self.count)
-        child.Show()
-
-    def OnDoClose(self, evt):
-        self.Close()
-
-
-class ChildFrame(aui.AuiMDIChildFrame):
-
-    def __init__(self, parent, count):
-
-        aui.AuiMDIChildFrame.__init__(
-            self, parent, -1, title="Child: %d" % count)
-        mb = parent.MakeMenuBar()
-        menu = wx.Menu()
-        mb.Append(menu, "&Child")
-        self.SetMenuBar(mb)
-
-        p = wx.Panel(self)
-        wx.StaticText(p, -1, "This is child %d" % count, (10, 10))
-        p.SetBackgroundColour('light blue')
-
-        sizer = wx.BoxSizer()
-        sizer.Add(p, 1, wx.EXPAND)
-        self.SetSizer(sizer)
-
-        wx.CallAfter(self.Layout)
 
 
 def gui():
