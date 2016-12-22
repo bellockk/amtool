@@ -1,12 +1,9 @@
+import os
+import sys
+import random
 import wx
 import wx.html
 import wx.grid
-
-import os
-import sys
-import time
-
-from wx.lib.embeddedimage import PyEmbeddedImage
 
 __all__ = ['gui']
 
@@ -24,215 +21,6 @@ except ImportError:  # if it's not there locally, try the wxPython lib.
     import wx.lib.agw.aui as aui
     from wx.lib.agw.aui import aui_switcherdialog as ASD
 
-import random
-
-ArtIDs = ["wx.ART_ADD_BOOKMARK",
-          "wx.ART_DEL_BOOKMARK",
-          "wx.ART_HELP_SIDE_PANEL",
-          "wx.ART_HELP_SETTINGS",
-          "wx.ART_HELP_BOOK",
-          "wx.ART_HELP_FOLDER",
-          "wx.ART_HELP_PAGE",
-          "wx.ART_GO_BACK",
-          "wx.ART_GO_FORWARD",
-          "wx.ART_GO_UP",
-          "wx.ART_GO_DOWN",
-          "wx.ART_GO_TO_PARENT",
-          "wx.ART_GO_HOME",
-          "wx.ART_FILE_OPEN",
-          "wx.ART_PRINT",
-          "wx.ART_HELP",
-          "wx.ART_TIP",
-          "wx.ART_REPORT_VIEW",
-          "wx.ART_LIST_VIEW",
-          "wx.ART_NEW_DIR",
-          "wx.ART_HARDDISK",
-          "wx.ART_FLOPPY",
-          "wx.ART_CDROM",
-          "wx.ART_REMOVABLE",
-          "wx.ART_FOLDER",
-          "wx.ART_FOLDER_OPEN",
-          "wx.ART_GO_DIR_UP",
-          "wx.ART_EXECUTABLE_FILE",
-          "wx.ART_NORMAL_FILE",
-          "wx.ART_TICK_MARK",
-          "wx.ART_CROSS_MARK",
-          "wx.ART_ERROR",
-          "wx.ART_QUESTION",
-          "wx.ART_WARNING",
-          "wx.ART_INFORMATION",
-          "wx.ART_MISSING_IMAGE",
-          ]
-
-# Custom pane button bitmaps
-close = PyEmbeddedImage(
-    "iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAAABHNCSVQICAgIfAhkiAAAAh9J"
-    "REFUKJFl0s1LFGEAx/HvMzO7M9vmrrSuThJIhslmaSZqFgZLdSqKjr147VB/Qn9Af0GXTiIU"
-    "vVAQdRAKqkuColaiiyiKr7FKL7u6OzM78zxPh6igfvcvv8tHCMMEoHAxr/35AlpK/p0wTZz2"
-    "HLlXbwWABTBzrk83DnSRvjWE4Tj/Rcr3KU1/Zsav6GNvxoU1cSGvmwZ7SZ3Oo5MpIiuGrvl/"
-    "X+IOIgpJndmPNONM2Elt7KyuU9/djySCbBNGo4ssriA3FlHfNjAaXchkiSKf+u5+ykvLGHLP"
-    "XlQiSS0SqLoMosHF6DwJdfWIXC+iwUWls4TaQtkJQtPC8gIPo1pldvQlanGNnqs3iLktyOwB"
-    "TNMk9AMmnzzEmHjHiVOD7AQBVjUI0JUdDqaTzLwfZS6VovPSFUytQUrmXjynfO8uR9MWyrEJ"
-    "/QCrFkrU9leM5QVysoa044jSD9AAmoxjk6GKtbqNaukglAojCHyi8Q8Ec7PsO3sZt/UQ3uYG"
-    "3+cLeF82cdsOk719hyjlIis+Na0wlJRExSJe23EitwW5VWRqZJjHQ9eYGhlGbhWJmlvxOvqp"
-    "lXeRSmM57TnWSx4/ltZZsR5hOAlKz57St1tmbWSYscou0vNIfJwlyGRIHOlACMPkwUCPzsmQ"
-    "aswi8Hza/ICYgFDDgmMTd2ySkaRgxrg+NinEb3v3z+f15qdpQt/DQvwREaGJOQmau7q5+fqX"
-    "vZ+3DPNuDe9/tAAAAABJRU5ErkJggg==")
-
-close_inactive = PyEmbeddedImage(
-    "iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAAABHNCSVQICAgIfAhkiAAAAh5J"
-    "REFUKJFl0stLVFEAgPHv3Htn7lzNGW1GZzSNtJI0fFZjQkQPqV0U0SJmnZugP6B9/0O4cZNE"
-    "ZFAQUdBrlZBYoJmGOYSPSUvRRp25r3NOi8iN3/7b/YQwTAAuDn7VM3kXqdiTaUBbS4w3Q+0C"
-    "QAjDpD83qfuPNdDZEicWMfZMbqCYzBcZmy0wNtIprIFb4/pUa4bzfXHiVRAxFWVP7w6OLQgk"
-    "NDTFsWOKyopxbSyubpPtShB6mroaQTolWFiQzM9LCsuadEpQWw1uSZHtSpBfKmLscySVFRpM"
-    "j+R+SaZWcLrXoDoBJ7shUydIJRVW1MeJaSwzxHLLJUqu4PnLaZYKity1Hg42RjhQb2CaAs/z"
-    "efjsM+/GDM6e6cErF7Hc8g5bO5rKqmZevJ8iXjXL1csdaC2QoeDpq1nu3S8SiXZgJxWe72NJ"
-    "6bO+rZhbNvDDdqKOZHMHtBYARJ0UrkyysGRyfEuhVIDhej4fpkO+5H2uXKqm5VCawi+fbz82"
-    "+fnb4+jhNHdvp8jUh7ihRMkAQ0rF6oaku73EwfqQlbWQ4dEJbt55xPDoBCtrIc2NIX3dZbbd"
-    "AK0k4lzugS5HT7C+vkG2tYxjmzx++4eiaiJuLHLjQoKSKxmfc0gma3D8iX8istdHtG+3YVHC"
-    "dX28yBEQEdABdvAd244iRQVRb4aPT3JC/Lc3kBvSn6YKlL0AYVi7IrQKcewIvR0NvB4ZFAB/"
-    "Aa4X7YpTOtu/AAAAAElFTkSuQmCC")
-
-maximize = PyEmbeddedImage(
-    "iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAAABHNCSVQICAgIfAhkiAAAAJZJ"
-    "REFUKJG9kj0OwjAMRp8D6hDUExDmrr0dEkOHXgXuAMfIBl1yCwaMMAyoIJQWqUu/yZa/5x/J"
-    "Im7BVLnJBLDsg2vbPC3G8e51zapp5QeyGLHzBYbWtcfwJFlv8Nsdrqpypuu4HfY5hHPgPVKW"
-    "+STv3/XeOnrEH80HfW9SxVIaNFlKoJpDEgL30xGKIqdUkRA+qcz2Ri8+yyNzplbFQwAAAABJ"
-    "RU5ErkJggg==")
-
-maximize_inactive = PyEmbeddedImage(
-    "iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAAABHNCSVQICAgIfAhkiAAAAJhJ"
-    "REFUKJFjZGRiZiAVMJGsg4GBgQXGaGz7+v/CxX84FRroMzHUV3Ezomi6cPEfw/Vb/xiYsbj2"
-    "718cNsnKMDJUlnAwqKthuvjmrX8MS1b8xtTEyMTAwMXFyMDLw4ihiYuLkYERySyyAoJ+muB+"
-    "+v2bgeHeA+xBfu/BP4bfiHBAaJKWYmTYsfsPAysrpqbfvyHyMMBIt2QEAFPtI359ud6yAAAA"
-    "AElFTkSuQmCC")
-
-minimize = PyEmbeddedImage(
-    "iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAAABHNCSVQICAgIfAhkiAAAAMlJ"
-    "REFUKJGdkrsNwkAQRN/eWohPByYkQaIKSqAJhBAF0AdExGRUQwoioAREAth3S2BjWzLIwER7"
-    "oxntzOpEnPIrotcQ1lvjeIbbHXjkpAczkAf0OjAc4GZTQZwiTrHNzhoxX5g4xRU7U9+c654A"
-    "VEzY150qpuQLedY1qvFJCqrgX3ENQp5C7IMp9eAEQsjEIWQXVC3UpckSWK5gfwCRnKv0nIwL"
-    "vrLJQDzomytGEXRb5bOYLhfotyEeASk1xfUEcT+r9s83cs2SOp6D2FytkDyOCgAAAABJRU5E"
-    "rkJggg==")
-
-minimize_inactive = PyEmbeddedImage(
-    "iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAAABHNCSVQICAgIfAhkiAAAANRJ"
-    "REFUKJGdkj1OgkEQhp/ZJSCF0VBYmUBPixfwAtzRS2DvCShMvAGRUJCQkMjOjwV8CwT1C77V"
-    "zGaevO9MViRlrlWnKd7el7HaKGpgpQDg7ng4rkY3Bw/3PZ4nI6lQzpnp0+BPh5fXDwBS8+DR"
-    "HquonUNEOxWHmaOTWSvk6sDJIRqZO0kEO8nrAUmEiN8gC8iCHyBvYqdU01RIizKbr1msy4/R"
-    "xo/9uvbRKYIIJewSSgIderWv0PZrRzcrw9tAVeulwvd7fC62DO5uAJD/fKPUPnKpbzVEY0DN"
-    "U2N1AAAAAElFTkSuQmCC")
-
-restore = PyEmbeddedImage(
-    "iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAAABHNCSVQICAgIfAhkiAAAAUlJ"
-    "REFUKJGd0j9LW1EYBvDfvUkM1iaGkohaKJRQv0XJ5FCKg1PnoogUHCwOjnVTx67d2n6Cgq2O"
-    "7oXupdKhUIOQqMRSE733djiXNkoXPcvhvO/z530fThTFBTc9RUjfvM2020zeC5VS3i3kiBg/"
-    "ulQa4oXnUREcd9nZ5fAnvQ5nHaKEYkY14w4eNHm6+M9JfTwQHs5w2WdjHSkRBj2W5uge8Ghi"
-    "iBQl/O6RXDA9gUvWXnJ8xIdPYdQIpXiIVMJpm433tB4H0OcvLMwHxyzoSIeCUEB5QJywvUm/"
-    "T6vFk2dUavxC5Vp6RlDLya+3ODnBK4p3ebfC4D+RK2AM/TP29slSqjVerPJxJ/RG/6LzK00p"
-    "Y2UuqF7gHD2Mo5ELX3H62uZ+k85BWDbJF6/nIZUx1eR7d4hUnWR2mZn61eHztEQp344oN8Lz"
-    "Nn/vD5FAXWAC04u0AAAAAElFTkSuQmCC")
-
-restore_inactive = PyEmbeddedImage(
-    "iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAAABHNCSVQICAgIfAhkiAAAAYxJ"
-    "REFUKJGdkr2PTGEUh5/z3ntndmYXIyODiI8oVyGRLTUitpToNCRCJdv7B2gkOrV6Q4hWp6JV"
-    "jXILhWKHeMfcmXvfj3MUk7jbcqrTPPk9J+cn4gr+dUqAz9OFzWth0CtJCiEaWUHNiMnIahQ0"
-    "TEYF16+OpARYto6v35SZj/gaZnNj2UIblZlX6lXg8thzf/dYl7RRFfyYK2fHjskI9m6XZIWs"
-    "4Gtj72VkerAk5SEADiBEWKwEVeHEphASvPoQefq65fRJAdaqmHVQG43vP5XdawX3blZcueh4"
-    "/qjPqeMQsxEUytKoSu30YjZmXlkFeP8p0URj+0LBrZ2KrYGjpiBlR1bpoDYYhz6Ts7H/MTJv"
-    "4O4NWIhj/03AZ0hBCNl1UMjCrxr80nj2oI8qbA2FJ28j774oMQnWGqpH/qQ5s2paHr6IbPSg"
-    "KoTWCYfZcMGhvqHQjGAd5Ehsn/FMD35Ti6NXClnWOiFCkRI7lxKD/pGbzk96PL4zJoUhhvyt"
-    "S7L1bmpUpXBusgmA/E/3/gASuMtl4Uj5YAAAAABJRU5ErkJggg==")
-
-
-fullscreen = PyEmbeddedImage(
-    "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAActJ"
-    "REFUOI2dk09I02EYx7/v+/7+DDRRYg4EWWYUKAjDSxBhJKuEUUJslwi8BXoaEaIdhpchddgt"
-    "CKIgCIbeYmXaTHboEigZ5GENdCCKfyZKTrf5+72Pp7nf9Lcf4gPP5fl+3i9feJ8HcKrghPD4"
-    "X9c5IdxJvHq4PFKvy3dOjKgltN4f71QU/lGo4kZD250/u5nZtB3H7IY9PRElW6f/ApgPAIiw"
-    "YZpax+rM8x2nNBeqSoLghMBkyIzFYptSSrcdzDnfCofDzd3db9X5+WdHAKAAQEt/9LKaz3zI"
-    "Ag+llG7f7UeQks4YLP787AaAnGdn2PsgupD9NvpVaeuLXmeGMkcwm8rg2tYe4tOLVY+D/i5L"
-    "EtYoQQlvIDqoEKgfoGbGmVEGHt/tQOBWe5WBrut4k05VTAQHA4b4ytTLVyAMSML/smgYBorF"
-    "YlUbxok/TEkmZ/zHfkHc5ACw/GX4E0B+q4GmaVVtNYBEPOPL39v4/iJ/Zg/O8wvWme0iIRLh"
-    "3t9osI6u7GI/lRozTqP2t7DUyVjJlWQlV46VXDl+5FpIX4Jmm8rWYDJkEmNPhSoKqqYUJKcn"
-    "64mxAzu05jHt/UtuN17rJSL6u5IYeV+LOwbQBrHjq9vsKwAAAABJRU5ErkJggg==")
-
-reload = PyEmbeddedImage(
-    "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAApFJ"
-    "REFUOI11k72LXFUUwH/n3vvmvbzZnZnNl7sWI0mIISaIIKYJ2AmbznQWKezSiOm0NaXpAjZu"
-    "kQTMHyBC0JBOCwmyWBrXHaMmuopLdt7Ox3vz3r33WMyyCJscOBwOnPPjfAovEFWEr2kBcIla"
-    "BH1enBxI/Golb7ZGb/kZb6vXkyCI4VeX8G3iFn+Qq1vTFwL0886pcqofNSXvgh41qEGEqBJR"
-    "tl3Gl2ZBbhy6ujs4ACjXuidiET7zDauuhRFnidky0gwxfkz0gq+JJuEbl9kPDn1YPAYwAHqT"
-    "VEfhmq9ZdS4aJBIWThNeuUQ4fpEgbbAGk3dMbMxqqMI1vUkK4AAa8vN+ppdj96ypj59DJv+g"
-    "+TJiFtDuq2iIUO1A1sM8/c7Epr48Nd0voFifAxpzAQ0rdPuEi5/M+6rHaLkDf3yPWzqLOAfT"
-    "f8G20KZeCT5cANaNKoJKX4RExluIr5B8CXp9aCrsbHvuJ2201SGaNiKaaJS+KmJE0KjRIwZm"
-    "BZTP5gvXiHRWiJ3+vFObQdqD7AiIQIxeBHUAorqh1lWiIWP3TyiHkPXgpdfg5Dv4jXvY0S9g"
-    "LGoyRGyFbzb2hxiCfWgdA2M5J5v3sVRodpQg78GRU5B2MX89BT9Bmm1i1MFM7cP9NXZmo83Q"
-    "hNvEokzKAdZaEuNxjx8gj+6RDB9h8iWME/DDMlbh9jFGm/sAuU7UkbsVxuM1KX+fGgokzUlS"
-    "S1o9wbUMRgvYHUxDsbsmtbsl14kHTvnZx0td0vqKW2y/b7vLZ6R9LAfQyfY0DLd+nhWTO9a3"
-    "7h7+dKd43i8I0Hp5kYUrr7vTbyzzZq8tJwB2xvrbj09Yv/uT3/x7zBiYwcEKBEiBfM/aPQUI"
-    "ewk1MPk/4D/OAyg6YvZkywAAAABJRU5ErkJggg==")
-
-remove = PyEmbeddedImage(
-    "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAApVJ"
-    "REFUOI2lkUtIVHEUxr//vf9778x4J8d8DDaODjo+mBzLKFJJJbVWFdmiVaEtehBYi2hVENXK"
-    "XS0iC6JNFkbkInwVQeoiiLAHtlAhW6TjTPnA9DreO/d/WjjOIkiDDnxwFuc7fOd3gP8s+bmD"
-    "118+UPGmiagsNL88UJqb62gLhTrP1tVdmY5G334zjOiGG574XF00/IjmHt6lO+mujvvb/J1L"
-    "3d1k9vRQk9fbsWkCX9ya/DIxUdVQ2+gt9Obt3lG1N6ykp+NGe/vnl5OT15aEiGx6x03g4GBl"
-    "IEGX2ojaLlBXeflKXWbm/n9i8BTILivgV4vkuXC0/x0W3n9C3tYMnsjOXpmyrMEfhmFutIC7"
-    "s3C9Jpw4vjAO3Ha6zS2Ki11cNZXz+fnnXkUiMbuy8l6OrreYpikxxgVRQmKMyaqa9mJo6PUH"
-    "PhTc6Q9gDvM1u1BxuFVxKRK+9/UhOjaOiCzL24uLHzcfOlLvcGoAGDRNgSxz9PcPnIrHf9Xy"
-    "r6FqHm85gXBFCNUeDwMAo7EB77uewdHxIBLI85c3HzsKp9MJxhgYYwCAmZmZwOjoWBp3EbJz"
-    "SoPQPR5YpglbCLhcaQgEg/Do6XsWF1elkZGPUFUVkiRB0zTouo7p6Rh03bOPBwKBUIbbDQAg"
-    "AIwxmKYJb1YWTp9pPckkSYrFfoKIUgKAkpIgDMO6xX0+n+R0OSGESJG1LAv5BX4UBQulRCIB"
-    "y7Jg2zaEsGHbAkQCmqZifn7JwYlk+vM1jDEIIWAYBoQQSbNIiYggxCqEYDZXFDVlWge03v9N"
-    "azMEzjm4qqp83STLUvJGAmMEYM1AxFLpkgggSYCiaDKPRhenenuHddNM0BokgMhODq+DQyo6"
-    "QLBtgiwzNju7svwbnlAlxKIQCyQAAAAASUVORK5CYII=")
-
-sort = PyEmbeddedImage(
-    "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAMdJ"
-    "REFUOI2VklEOgyAMhv+iR1jmdfQWHt1dQXA+dI9K97BpaIFE/4SQAv36UwC5BukAROxaOl7T"
-    "pPYdbmpZVxUrgMRNyLUkcZMqIIQ64IpCWMqAo6qdrbyfVdymAbmWLDAH+LKDq6oC0uql+FDw"
-    "uonnFWLcM8vONRkkLBWATSgBAeBt/gH9fp9WjLvY6t3zIZIiCZjnQFkTS8kA0PcDmBn8YTAz"
-    "hn7IHdSSD0lyLfqfOx3Y5FIPxnFUs3Jw9RUk7kLJerGJd/QF7eJxBTVIT38AAAAASUVORK5C"
-    "YII=")
-
-superscript = PyEmbeddedImage(
-    "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAYFJ"
-    "REFUOI3VkTtPAlEQhUfW4INCxMpigcTEVhMbCxO2NDZgg6UUJpSIzZZS+AO201gYaa1MbEy2"
-    "EAosbCQxxFdUsKLjIffOndl1sTBYiEFjYzzVmWTmy8wZgH+voZ82ru0+RfWpkeOJUV/04lpY"
-    "J+ZMDgDA91NAwD9s3T9Q4vyqZS3Mjm//Ytl3pfZr5Y2D52qvHu4Z0zQLrusCEQEzAxGllFKH"
-    "iAiICLZtGzGzkhPoQvUWE725jxMcx7GYeV4pFSOicj6fr0opC1LKKjOnlrYqCZ8G0bvHtsHk"
-    "BOfWL6MAn0JMp9OGUuqMmaHT6WSVUgnbtg0AgJWdm4I+PRZzX7vwIl9bR5szwT4AAEAymbQc"
-    "x8kIIYCIJovFYnNQJn1fIKKcEAI8z4N2u537LtQ+gJTyWAiRRUTodruZSCRiDAJoPROPx4O6"
-    "ru8hYqFUKlmBQGDS7/cvNpvNVU3TTomoPhAQDodPETEopVShUKgupUw1Go0aM9eZeRkAyp7n"
-    "fQn5W70BAIHMJSEYEtgAAAAASUVORK5CYII=")
-
-# Custom pane bitmaps reference
-#                      bitmap  button id       active  maximize
-CUSTOM_PANE_BITMAPS = [(close, aui.AUI_BUTTON_CLOSE, True, False),
-                       (close_inactive, aui.AUI_BUTTON_CLOSE, False, False),
-                       (minimize, aui.AUI_BUTTON_MINIMIZE, True, False),
-                       (minimize_inactive, aui.AUI_BUTTON_MINIMIZE, False,
-                        False),
-                       (maximize, aui.AUI_BUTTON_MAXIMIZE_RESTORE, True, True),
-                       (maximize_inactive, aui.AUI_BUTTON_MAXIMIZE_RESTORE,
-                        False, True),
-                       (restore, aui.AUI_BUTTON_MAXIMIZE_RESTORE, True, False),
-                       (restore_inactive, aui.AUI_BUTTON_MAXIMIZE_RESTORE,
-                        False, False)]
-
-# Custom buttons in tab area
-#
-CUSTOM_TAB_BUTTONS = {"Left": [(sort, aui.AUI_BUTTON_CUSTOM1),
-                               (superscript, aui.AUI_BUTTON_CUSTOM2)],
-                      "Right": [(fullscreen, aui.AUI_BUTTON_CUSTOM3),
-                                (remove, aui.AUI_BUTTON_CUSTOM4),
-                                (reload, aui.AUI_BUTTON_CUSTOM5)]
-                      }
-
-
-# Define a translation function
 _ = wx.GetTranslation
 
 
@@ -267,14 +55,12 @@ ID_VerticalGradient = ID_CreateTree + 27
 ID_HorizontalGradient = ID_CreateTree + 28
 ID_LiveUpdate = ID_CreateTree + 29
 ID_AnimateFrames = ID_CreateTree + 30
-ID_PaneIcons = ID_CreateTree + 31
 ID_TransparentPane = ID_CreateTree + 32
 ID_DefaultDockArt = ID_CreateTree + 33
 ID_ModernDockArt = ID_CreateTree + 34
 ID_SnapToScreen = ID_CreateTree + 35
 ID_SnapPanes = ID_CreateTree + 36
 ID_FlyOut = ID_CreateTree + 37
-ID_CustomPaneButtons = ID_CreateTree + 38
 ID_Settings = ID_CreateTree + 39
 ID_CustomizeToolbar = ID_CreateTree + 40
 ID_DropDownToolbarItem = ID_CreateTree + 41
@@ -311,7 +97,6 @@ ID_NotebookAlignBottom = ID_CreateTree + 71
 ID_NotebookHideSingle = ID_CreateTree + 72
 ID_NotebookSmartTab = ID_CreateTree + 73
 ID_NotebookUseImagesDropDown = ID_CreateTree + 74
-ID_NotebookCustomButtons = ID_CreateTree + 75
 ID_NotebookMinMaxWidth = ID_CreateTree + 76
 
 ID_SampleItem = ID_CreateTree + 77
@@ -341,17 +126,13 @@ ID_ActiveCaptionTextColour = ID_PaneBorderSize + 11
 ID_BorderColour = ID_PaneBorderSize + 12
 ID_GripperColour = ID_PaneBorderSize + 13
 ID_SashGrip = ID_PaneBorderSize + 14
-ID_HintColour = ID_PaneBorderSize + 15
 
-ID_VetoTree = ID_PaneBorderSize + 16
-ID_VetoText = ID_PaneBorderSize + 17
-ID_NotebookMultiLine = ID_PaneBorderSize + 18
+ID_VetoTree = ID_PaneBorderSize + 15
+ID_VetoText = ID_PaneBorderSize + 16
+ID_NotebookMultiLine = ID_PaneBorderSize + 17
 
 
 class SizeReportCtrl(wx.PyControl):
-    """
-    A utility control that always reports it's client size
-    """
 
     def __init__(self, parent, id=wx.ID_ANY, pos=wx.DefaultPosition,
                  size=wx.DefaultSize, mgr=None):
@@ -419,8 +200,7 @@ class SettingsPanel(wx.Panel):
 
         s1 = wx.BoxSizer(wx.HORIZONTAL)
         self._border_size = wx.SpinCtrl(
-            self, ID_PaneBorderSize,
-            "%d" % frame.GetDockArt().GetMetric(
+            self, ID_PaneBorderSize, "%d" % frame.GetDockArt().GetMetric(
                 aui.AUI_DOCKART_PANE_BORDER_SIZE),
             wx.DefaultPosition, wx.Size(50, 20), wx.SP_ARROW_KEYS, 0, 100,
             frame.GetDockArt().GetMetric(aui.AUI_DOCKART_PANE_BORDER_SIZE))
@@ -444,8 +224,8 @@ class SettingsPanel(wx.Panel):
 
         s3 = wx.BoxSizer(wx.HORIZONTAL)
         self._caption_size = wx.SpinCtrl(
-            self, ID_CaptionSize,
-            "%d" % frame.GetDockArt().GetMetric(aui.AUI_DOCKART_CAPTION_SIZE),
+            self, ID_CaptionSize, "%d" % frame.GetDockArt().GetMetric(
+                aui.AUI_DOCKART_CAPTION_SIZE),
             wx.DefaultPosition, wx.Size(50, 20), wx.SP_ARROW_KEYS, 0, 100,
             frame.GetDockArt().GetMetric(aui.AUI_DOCKART_CAPTION_SIZE))
         s3.Add((1, 1), 1, wx.EXPAND)
@@ -457,9 +237,8 @@ class SettingsPanel(wx.Panel):
         b = self.CreateColourBitmap(wx.BLACK)
 
         s4 = wx.BoxSizer(wx.HORIZONTAL)
-        self._background_colour = wx.BitmapButton(self, ID_BackgroundColour, b,
-                                                  wx.DefaultPosition,
-                                                  wx.Size(50, 25))
+        self._background_colour = wx.BitmapButton(
+            self, ID_BackgroundColour, b, wx.DefaultPosition, wx.Size(50, 25))
         s4.Add((1, 1), 1, wx.EXPAND)
         s4.Add(wx.StaticText(self, -1, "Background Colour:"))
         s4.Add(self._background_colour)
@@ -467,9 +246,8 @@ class SettingsPanel(wx.Panel):
         s4.SetItemMinSize(1, (180, 20))
 
         s5 = wx.BoxSizer(wx.HORIZONTAL)
-        self._sash_colour = wx.BitmapButton(self, ID_SashColour, b,
-                                            wx.DefaultPosition,
-                                            wx.Size(50, 25))
+        self._sash_colour = wx.BitmapButton(
+            self, ID_SashColour, b, wx.DefaultPosition, wx.Size(50, 25))
         s5.Add((1, 1), 1, wx.EXPAND)
         s5.Add(wx.StaticText(self, -1, "Sash Colour:"))
         s5.Add(self._sash_colour)
@@ -563,15 +341,6 @@ class SettingsPanel(wx.Panel):
         s14.Add((1, 1), 1, wx.EXPAND)
         s14.SetItemMinSize(1, (180, 20))
 
-        s15 = wx.BoxSizer(wx.HORIZONTAL)
-        self._hint_colour = wx.BitmapButton(
-            self, ID_HintColour, b, wx.DefaultPosition, wx.Size(50, 25))
-        s15.Add((1, 1), 1, wx.EXPAND)
-        s15.Add(wx.StaticText(self, -1, "Hint Window Colour:"))
-        s15.Add(self._hint_colour)
-        s15.Add((1, 1), 1, wx.EXPAND)
-        s15.SetItemMinSize(1, (180, 20))
-
         grid_sizer = wx.GridSizer(0, 2)
         grid_sizer.SetHGap(5)
         grid_sizer.Add(s1)
@@ -589,21 +358,20 @@ class SettingsPanel(wx.Panel):
         grid_sizer.Add(s10)
         grid_sizer.Add(s8)
         grid_sizer.Add(s11)
-        grid_sizer.Add(s15)
 
         cont_sizer = wx.BoxSizer(wx.VERTICAL)
         cont_sizer.Add(grid_sizer, 1, wx.EXPAND | wx.ALL, 5)
         self.SetSizer(cont_sizer)
         self.GetSizer().SetSizeHints(self)
 
-        self._border_size.SetValue(
-            frame.GetDockArt().GetMetric(aui.AUI_DOCKART_PANE_BORDER_SIZE))
-        self._sash_size.SetValue(
-            frame.GetDockArt().GetMetric(aui.AUI_DOCKART_SASH_SIZE))
-        self._caption_size.SetValue(
-            frame.GetDockArt().GetMetric(aui.AUI_DOCKART_CAPTION_SIZE))
-        self._sash_grip.SetValue(
-            frame.GetDockArt().GetMetric(aui.AUI_DOCKART_DRAW_SASH_GRIP))
+        self._border_size.SetValue(frame.GetDockArt().GetMetric(
+            aui.AUI_DOCKART_PANE_BORDER_SIZE))
+        self._sash_size.SetValue(frame.GetDockArt().GetMetric(
+            aui.AUI_DOCKART_SASH_SIZE))
+        self._caption_size.SetValue(frame.GetDockArt().GetMetric(
+            aui.AUI_DOCKART_CAPTION_SIZE))
+        self._sash_grip.SetValue(frame.GetDockArt().GetMetric(
+            aui.AUI_DOCKART_DRAW_SASH_GRIP))
 
         self.UpdateColours()
 
@@ -618,14 +386,14 @@ class SettingsPanel(wx.Panel):
                   id=ID_InactiveCaptionGradientColour)
         self.Bind(wx.EVT_BUTTON, self.OnSetColour,
                   id=ID_InactiveCaptionTextColour)
-        self.Bind(wx.EVT_BUTTON, self.OnSetColour, id=ID_ActiveCaptionColour)
+        self.Bind(wx.EVT_BUTTON, self.OnSetColour,
+                  id=ID_ActiveCaptionColour)
         self.Bind(wx.EVT_BUTTON, self.OnSetColour,
                   id=ID_ActiveCaptionGradientColour)
         self.Bind(wx.EVT_BUTTON, self.OnSetColour,
                   id=ID_ActiveCaptionTextColour)
         self.Bind(wx.EVT_BUTTON, self.OnSetColour, id=ID_BorderColour)
         self.Bind(wx.EVT_BUTTON, self.OnSetColour, id=ID_GripperColour)
-        self.Bind(wx.EVT_BUTTON, self.OnSetColour, id=ID_HintColour)
 
     def CreateColourBitmap(self, c):
 
@@ -676,7 +444,8 @@ class SettingsPanel(wx.Panel):
         self._active_caption_text_colour.SetBitmapLabel(
             self.CreateColourBitmap(acaptxt))
 
-        sash = self._frame.GetDockArt().GetColour(aui.AUI_DOCKART_SASH_COLOUR)
+        sash = self._frame.GetDockArt().GetColour(
+            aui.AUI_DOCKART_SASH_COLOUR)
         self._sash_colour.SetBitmapLabel(self.CreateColourBitmap(sash))
 
         border = self._frame.GetDockArt().GetColour(
@@ -687,14 +456,10 @@ class SettingsPanel(wx.Panel):
             aui.AUI_DOCKART_GRIPPER_COLOUR)
         self._gripper_colour.SetBitmapLabel(self.CreateColourBitmap(gripper))
 
-        hint = self._frame.GetDockArt().GetColour(
-            aui.AUI_DOCKART_HINT_WINDOW_COLOUR)
-        self._hint_colour.SetBitmapLabel(self.CreateColourBitmap(hint))
-
     def OnPaneBorderSize(self, event):
 
-        self._frame.GetDockArt().SetMetric(aui.AUI_DOCKART_PANE_BORDER_SIZE,
-                                           event.GetInt())
+        self._frame.GetDockArt().SetMetric(
+            aui.AUI_DOCKART_PANE_BORDER_SIZE, event.GetInt())
         self._frame.DoUpdate()
 
     def OnSashSize(self, event):
@@ -744,8 +509,6 @@ class SettingsPanel(wx.Panel):
             var = aui.AUI_DOCKART_BORDER_COLOUR
         elif evId == ID_GripperColour:
             var = aui.AUI_DOCKART_GRIPPER_COLOUR
-        elif evId == ID_HintColour:
-            var = aui.AUI_DOCKART_HINT_WINDOW_COLOUR
         else:
             return
 
@@ -755,150 +518,7 @@ class SettingsPanel(wx.Panel):
         self.UpdateColours()
 
 
-class ProgressGauge(wx.PyWindow):
-    """ This class provides a visual alternative for wx.Gauge."""
-
-    def __init__(self, parent, id=wx.ID_ANY, pos=wx.DefaultPosition,
-                 size=(-1, 30)):
-        """ Default class constructor. """
-
-        wx.PyWindow.__init__(self, parent, id, pos, size, style=wx.BORDER_NONE)
-
-        self._value = 0
-        self._steps = 16
-        self._pos = 0
-        self._current = 0
-        self._gaugeproportion = 0.4
-        self._startTime = time.time()
-
-        self._bottomStartColour = wx.GREEN
-        self._bottomEndColour = self.LightColour(self._bottomStartColour, 30)
-        self._topStartColour = self.LightColour(self._bottomStartColour, 80)
-        self._topEndColour = self.LightColour(self._bottomStartColour, 40)
-
-        self._background = wx.Brush(wx.WHITE, wx.SOLID)
-
-        self.Bind(wx.EVT_PAINT, self.OnPaint)
-        self.Bind(wx.EVT_ERASE_BACKGROUND, self.OnEraseBackground)
-
-    def OnEraseBackground(self, event):
-        """ Handles the wx.EVT_ERASE_BACKGROUND event for ProgressGauge. """
-
-        pass
-
-    def OnPaint(self, event):
-        """ Handles the wx.EVT_PAINT event for ProgressGauge. """
-
-        dc = wx.BufferedPaintDC(self)
-        dc.SetBackground(self._background)
-        dc.SetBackground(wx.WHITE_BRUSH)
-        dc.Clear()
-
-        xsize, ysize = self.GetClientSize()
-        interval = xsize/float(self._steps)
-
-        self._pos = interval*self._value
-
-        status = self._current/(self._steps - int((
-            self._gaugeproportion*xsize/interval)))
-
-        if status % 2 == 0:
-            increment = 1
-        else:
-            increment = -1
-
-        self._value = self._value + increment
-        self._current = self._current + 1
-
-        self.DrawProgress(dc, xsize, ysize, increment)
-
-        dc.SetBrush(wx.TRANSPARENT_BRUSH)
-        dc.SetPen(wx.Pen(wx.SystemSettings_GetColour(
-            wx.SYS_COLOUR_GRADIENTINACTIVECAPTION)))
-        dc.DrawRectangleRect(self.GetClientRect())
-
-    def LightColour(self, colour, percent):
-        """
-        Return light contrast of colour. The colour returned is from the scale
-        of colour -> white. The percent determines how light the colour will
-        be.  Percent = 100 return white, percent = 0 returns colour.
-        """
-
-        end_colour = wx.WHITE
-        rd = end_colour.Red() - colour.Red()
-        gd = end_colour.Green() - colour.Green()
-        bd = end_colour.Blue() - colour.Blue()
-        high = 100
-
-        # We take the percent way of the colour from colour -> white
-        i = percent
-        r = colour.Red() + ((i*rd*100)/high)/100
-        g = colour.Green() + ((i*gd*100)/high)/100
-        b = colour.Blue() + ((i*bd*100)/high)/100
-
-        return wx.Colour(r, g, b)
-
-    def DrawProgress(self, dc, xsize, ysize, increment):
-        """ Actually draws the sliding bar. """
-
-        interval = self._gaugeproportion*xsize
-        gc = wx.GraphicsContext.Create(dc)
-
-        clientRect = self.GetClientRect()
-        gradientRect = wx.Rect(*clientRect)
-
-        x, y, width, height = clientRect
-        x, width = self._pos, interval
-
-        gradientRect.SetHeight(gradientRect.GetHeight()/2)
-        topStart, topEnd = self._topStartColour, self._topEndColour
-
-        rc1 = wx.Rect(x, y, width, height/2)
-        path1 = self.GetPath(gc, rc1, 8)
-        br1 = gc.CreateLinearGradientBrush(x, y, x, y + height / 2, topStart,
-                                           topEnd)
-        gc.SetBrush(br1)
-        gc.FillPath(path1)  # draw main
-
-        path4 = gc.CreatePath()
-        path4.AddRectangle(x, y+height/2-8, width, 8)
-        path4.CloseSubpath()
-        gc.SetBrush(br1)
-        gc.FillPath(path4)
-
-        gradientRect.Offset((0, gradientRect.GetHeight()))
-
-        bottomStart, bottomEnd = self._bottomStartColour, self._bottomEndColour
-
-        rc3 = wx.Rect(x, y+height/2, width, height/2)
-        path3 = self.GetPath(gc, rc3, 8)
-        br3 = gc.CreateLinearGradientBrush(
-            x, y + height / 2, x, y + height, bottomStart, bottomEnd)
-        gc.SetBrush(br3)
-        gc.FillPath(path3)  # draw main
-
-        path4 = gc.CreatePath()
-        path4.AddRectangle(x, y+height/2, width, 8)
-        path4.CloseSubpath()
-        gc.SetBrush(br3)
-        gc.FillPath(path4)
-
-    def GetPath(self, gc, rc, r):
-        """ Returns a rounded GraphicsPath. """
-
-        x, y, w, h = rc
-        path = gc.CreatePath()
-        path.AddRoundedRectangle(x, y, w, h, r)
-        path.CloseSubpath()
-        return path
-
-    def Pulse(self):
-        """ Updates the gauge with a new value. """
-
-        self.Refresh()
-
-
-class AuiFrame(wx.Frame):
+class MainFrame(wx.Frame):
 
     def __init__(self, parent, id=wx.ID_ANY, title="", pos=wx.DefaultPosition,
                  size=(800, 600),
@@ -913,11 +533,11 @@ class AuiFrame(wx.Frame):
         self._mgr.SetManagedWindow(self)
 
         # set frame icon
-        self.SetIcon(Mondrian.GetIcon())
+        # self.SetIcon(images.Mondrian.GetIcon())
 
         # set up default notebook style
-        self._notebook_style = aui.AUI_NB_DEFAULT_STYLE | \
-            aui.AUI_NB_TAB_EXTERNAL_MOVE | wx.NO_BORDER
+        self._notebook_style = (aui.AUI_NB_DEFAULT_STYLE |
+                                aui.AUI_NB_TAB_EXTERNAL_MOVE | wx.NO_BORDER)
         self._notebook_theme = 0
         # Attributes
         self._textCount = 1
@@ -954,17 +574,16 @@ class AuiFrame(wx.Frame):
         view_menu.Append(ID_CreateSizeReport, "Create Size Reporter")
         view_menu.AppendSeparator()
         view_menu.Append(ID_GridContent, "Use a Grid for the Content Pane")
-        view_menu.Append(
-            ID_TextContent, "Use a Text Control for the Content Pane")
-        view_menu.Append(
-            ID_HTMLContent, "Use an HTML Control for the Content Pane")
-        view_menu.Append(
-            ID_TreeContent, "Use a Tree Control for the Content Pane")
-        view_menu.Append(
-            ID_NotebookContent,
-            "Use a AuiNotebook control for the Content Pane")
-        view_menu.Append(
-            ID_SizeReportContent, "Use a Size Reporter for the Content Pane")
+        view_menu.Append(ID_TextContent,
+                         "Use a Text Control for the Content Pane")
+        view_menu.Append(ID_HTMLContent,
+                         "Use an HTML Control for the Content Pane")
+        view_menu.Append(ID_TreeContent,
+                         "Use a Tree Control for the Content Pane")
+        view_menu.Append(ID_NotebookContent,
+                         "Use a AuiNotebook control for the Content Pane")
+        view_menu.Append(ID_SizeReportContent,
+                         "Use a Size Reporter for the Content Pane")
         view_menu.AppendSeparator()
 
         options_menu = wx.Menu()
@@ -1001,7 +620,6 @@ class AuiFrame(wx.Frame):
         options_menu.AppendRadioItem(
             ID_MinimizeCaptHide, "Hidden Minimized Caption").Check()
         options_menu.AppendSeparator()
-        options_menu.AppendCheckItem(ID_PaneIcons, "Set Icons On Panes")
         options_menu.AppendCheckItem(
             ID_AnimateFrames, "Animate Dock/Close/Minimize Of Floating Panes")
         options_menu.AppendCheckItem(
@@ -1018,8 +636,6 @@ class AuiFrame(wx.Frame):
             ID_SnapPanes, "Snap Panes To Managed Window")
         options_menu.AppendCheckItem(ID_FlyOut, "Use Fly-Out Floating Panes")
         options_menu.AppendSeparator()
-        options_menu.AppendCheckItem(
-            ID_CustomPaneButtons, "Set Custom Pane Button Bitmaps")
         options_menu.AppendSeparator()
         options_menu.AppendRadioItem(ID_NoGradient, "No Caption Gradient")
         options_menu.AppendRadioItem(
@@ -1053,8 +669,7 @@ class AuiFrame(wx.Frame):
         notebook_menu.AppendCheckItem(
             ID_NotebookCloseOnLeft, "Close Button On The Left Of Tabs")
         notebook_menu.AppendSeparator()
-        notebook_menu.AppendRadioItem(
-            ID_NotebookAlignTop, "Tab Top Alignment")
+        notebook_menu.AppendRadioItem(ID_NotebookAlignTop, "Tab Top Alignment")
         notebook_menu.AppendRadioItem(
             ID_NotebookAlignBottom, "Tab Bottom Alignment")
         notebook_menu.AppendSeparator()
@@ -1084,8 +699,6 @@ class AuiFrame(wx.Frame):
         notebook_menu.AppendCheckItem(ID_NotebookSmartTab, "Use Smart Tabbing")
         notebook_menu.AppendCheckItem(
             ID_NotebookUseImagesDropDown, "Use Tab Images In Dropdown Menu")
-        notebook_menu.AppendCheckItem(
-            ID_NotebookCustomButtons, "Show Custom Buttons In Tab Area")
         notebook_menu.AppendSeparator()
         notebook_menu.Append(ID_NotebookMinMaxWidth, "Set Min/Max Tab Widths")
         notebook_menu.Append(
@@ -1113,7 +726,7 @@ class AuiFrame(wx.Frame):
             ID_CopyNBPerspectiveCode, "Copy Perspective Data To Clipboard")
         self._nb_perspectives_menu.AppendSeparator()
         self._nb_perspectives_menu.Append(
-            ID_FirstNBPerspective+0, "Default Startup")
+            ID_FirstNBPerspective + 0, "Default Startup")
 
         guides_menu = wx.Menu()
         guides_menu.AppendRadioItem(
@@ -1173,7 +786,7 @@ class AuiFrame(wx.Frame):
         # prepare a few custom overflow elements for the toolbars' overflow
         # buttons
 
-        prepend_items, append_items = [], []
+        append_items = []
         item = aui.AuiToolBarItem()
 
         item.SetKind(wx.ITEM_SEPARATOR)
@@ -1185,169 +798,22 @@ class AuiFrame(wx.Frame):
         item.SetLabel("Customize...")
         append_items.append(item)
 
-        # create some toolbars
-        tb1 = aui.AuiToolBar(
-            self, -1, wx.DefaultPosition, wx.DefaultSize,
-            agwStyle=aui.AUI_TB_DEFAULT_STYLE | aui.AUI_TB_OVERFLOW)
-        tb1.SetToolBitmapSize(wx.Size(48, 48))
-        tb1.AddSimpleTool(
-            ID_SampleItem+1, "Test", wx.ArtProvider.GetBitmap(wx.ART_ERROR))
-        tb1.AddSeparator()
-        tb1.AddSimpleTool(
-            ID_SampleItem+2, "Test", wx.ArtProvider.GetBitmap(wx.ART_QUESTION))
-        tb1.AddSimpleTool(
-            ID_SampleItem+3, "Test",
-            wx.ArtProvider.GetBitmap(wx.ART_INFORMATION))
-        tb1.AddSimpleTool(
-            ID_SampleItem+4, "Test",
-            wx.ArtProvider.GetBitmap(wx.ART_WARNING))
-        tb1.AddSimpleTool(
-            ID_SampleItem+5, "Test",
-            wx.ArtProvider.GetBitmap(wx.ART_MISSING_IMAGE))
-        tb1.SetCustomOverflowItems(prepend_items, append_items)
-        tb1.Realize()
-
-        tb2 = aui.AuiToolBar(
-            self, -1, wx.DefaultPosition, wx.DefaultSize,
-            agwStyle=aui.AUI_TB_DEFAULT_STYLE | aui.AUI_TB_OVERFLOW)
-        tb2.SetToolBitmapSize(wx.Size(16, 16))
-
-        tb2_bmp1 = wx.ArtProvider.GetBitmap(
-            wx.ART_QUESTION, wx.ART_OTHER, wx.Size(16, 16))
-        tb2.AddSimpleTool(ID_SampleItem+6, "Test", tb2_bmp1)
-        tb2.AddSimpleTool(ID_SampleItem+7, "Test", tb2_bmp1)
-        tb2.AddSimpleTool(ID_SampleItem+8, "Test", tb2_bmp1)
-        tb2.AddSimpleTool(ID_SampleItem+9, "Test", tb2_bmp1)
-        tb2.AddSeparator()
-        tb2.AddSimpleTool(ID_SampleItem+10, "Test", tb2_bmp1)
-        tb2.AddSimpleTool(ID_SampleItem+11, "Test", tb2_bmp1)
-        tb2.AddSeparator()
-        tb2.AddSimpleTool(ID_SampleItem+12, "Test", tb2_bmp1)
-        tb2.AddSimpleTool(ID_SampleItem+13, "Test", tb2_bmp1)
-        tb2.AddSimpleTool(ID_SampleItem+14, "Test", tb2_bmp1)
-        tb2.AddSimpleTool(ID_SampleItem+15, "Test", tb2_bmp1)
-        tb2.SetCustomOverflowItems(prepend_items, append_items)
-        tb2.Realize()
-
-        tb3 = aui.AuiToolBar(
-            self, -1, wx.DefaultPosition, wx.DefaultSize,
-            agwStyle=aui.AUI_TB_DEFAULT_STYLE | aui.AUI_TB_OVERFLOW)
-        tb3.SetToolBitmapSize(wx.Size(16, 16))
-        tb3_bmp1 = wx.ArtProvider.GetBitmap(
-            wx.ART_FOLDER, wx.ART_OTHER, wx.Size(16, 16))
-        tb3.AddSimpleTool(
-            ID_SampleItem+16, "Check 1", tb3_bmp1, "Check 1", aui.ITEM_CHECK)
-        tb3.AddSimpleTool(
-            ID_SampleItem+17, "Check 2", tb3_bmp1, "Check 2", aui.ITEM_CHECK)
-        tb3.AddSimpleTool(
-            ID_SampleItem+18, "Check 3", tb3_bmp1, "Check 3", aui.ITEM_CHECK)
-        tb3.AddSimpleTool(
-            ID_SampleItem+19, "Check 4", tb3_bmp1, "Check 4", aui.ITEM_CHECK)
-        tb3.AddSeparator()
-        tb3.AddSimpleTool(
-            ID_SampleItem+20, "Radio 1", tb3_bmp1, "Radio 1", aui.ITEM_RADIO)
-        tb3.AddSimpleTool(
-            ID_SampleItem+21, "Radio 2", tb3_bmp1, "Radio 2", aui.ITEM_RADIO)
-        tb3.AddSimpleTool(
-            ID_SampleItem+22, "Radio 3", tb3_bmp1, "Radio 3", aui.ITEM_RADIO)
-        tb3.AddSeparator()
-        tb3.AddSimpleTool(
-            ID_SampleItem+23, "Radio 1 (Group 2)", tb3_bmp1,
-            "Radio 1 (Group 2)", aui.ITEM_RADIO)
-        tb3.AddSimpleTool(
-            ID_SampleItem+24, "Radio 2 (Group 2)", tb3_bmp1,
-            "Radio 2 (Group 2)", aui.ITEM_RADIO)
-        tb3.AddSimpleTool(
-            ID_SampleItem+25, "Radio 3 (Group 2)", tb3_bmp1,
-            "Radio 3 (Group 2)", aui.ITEM_RADIO)
-
-        tb3.SetCustomOverflowItems(prepend_items, append_items)
-        tb3.Realize()
-
-        tb4 = aui.AuiToolBar(
-            self, -1, wx.DefaultPosition, wx.DefaultSize,
-            agwStyle=aui.AUI_TB_OVERFLOW |
-            aui.AUI_TB_TEXT |
-            aui.AUI_TB_HORZ_TEXT)
-        tb4.SetToolBitmapSize(wx.Size(16, 16))
-        tb4_bmp1 = wx.ArtProvider.GetBitmap(
-            wx.ART_NORMAL_FILE, wx.ART_OTHER, wx.Size(16, 16))
-        tb4.AddSimpleTool(ID_DropDownToolbarItem, "Item 1", tb4_bmp1)
-        tb4.AddSimpleTool(ID_SampleItem+23, "Item 2", tb4_bmp1)
-        tb4.AddSimpleTool(ID_SampleItem+24, "Item 3", tb4_bmp1)
-        tb4.AddSimpleTool(ID_SampleItem+25, "Item 4", tb4_bmp1)
-        tb4.AddSeparator()
-        tb4.AddSimpleTool(ID_SampleItem+26, "Item 5", tb4_bmp1)
-        tb4.AddSimpleTool(ID_SampleItem+27, "Item 6", tb4_bmp1)
-        tb4.AddSimpleTool(ID_SampleItem+28, "Item 7", tb4_bmp1)
-        tb4.AddSimpleTool(ID_SampleItem+29, "Item 8", tb4_bmp1)
-
-        choice = wx.Choice(tb4, -1, choices=["One choice", "Another choice"])
-        tb4.AddControl(choice)
-
-        tb4.SetToolDropDown(ID_DropDownToolbarItem, True)
-        tb4.Realize()
-
-        tb5 = aui.AuiToolBar(
-            self, -1, wx.DefaultPosition, wx.DefaultSize,
-            agwStyle=aui.AUI_TB_OVERFLOW | aui.AUI_TB_VERTICAL)
-
-        tb5.SetToolBitmapSize(wx.Size(48, 48))
-        tb5.AddSimpleTool(
-            ID_SampleItem+30, "Test", wx.ArtProvider.GetBitmap(wx.ART_ERROR))
-        tb5.AddSeparator()
-        tb5.AddSimpleTool(
-            ID_SampleItem+31, "Test",
-            wx.ArtProvider.GetBitmap(wx.ART_QUESTION))
-        tb5.AddSimpleTool(
-            ID_SampleItem+32, "Test",
-            wx.ArtProvider.GetBitmap(wx.ART_INFORMATION))
-        tb5.AddSimpleTool(
-            ID_SampleItem+33, "Test", wx.ArtProvider.GetBitmap(wx.ART_WARNING))
-        tb5.AddSimpleTool(
-            ID_SampleItem+34, "Test",
-            wx.ArtProvider.GetBitmap(wx.ART_MISSING_IMAGE))
-        tb5.SetCustomOverflowItems(prepend_items, append_items)
-        tb5.Realize()
-
-        tb6 = aui.AuiToolBar(
-            self, -1, wx.DefaultPosition, wx.DefaultSize,
-            agwStyle=aui.AUI_TB_OVERFLOW | aui.AUI_TB_VERT_TEXT)
-        tb6.SetToolBitmapSize(wx.Size(48, 48))
-        tb6.AddSimpleTool(
-            ID_SampleItem+35, "Clockwise 1",
-            wx.ArtProvider.GetBitmap(wx.ART_ERROR, wx.ART_OTHER,
-                                     wx.Size(16, 16)))
-        tb6.AddSeparator()
-        tb6.AddSimpleTool(
-            ID_SampleItem+36, "Clockwise 2",
-            wx.ArtProvider.GetBitmap(wx.ART_QUESTION, wx.ART_OTHER,
-                                     wx.Size(16, 16)))
-        tb6.AddSimpleTool(
-            ID_DropDownToolbarItem, "Clockwise 3",
-            wx.ArtProvider.GetBitmap(wx.ART_WARNING, wx.ART_OTHER,
-                                     wx.Size(16, 16)))
-        tb6.SetCustomOverflowItems(prepend_items, append_items)
-        tb6.SetToolDropDown(ID_DropDownToolbarItem, True)
-        tb6.Realize()
-
         # add a bunch of panes
-        self._mgr.AddPane(
-            self.CreateSizeReportCtrl(), aui.AuiPaneInfo().
-            Name("test1").Caption("Pane Caption").Top().MinimizeButton(True))
+        self._mgr.AddPane(self.CreateSizeReportCtrl(), aui.AuiPaneInfo().
+                          Name("test1").Caption("Pane Caption").
+                          Top().MinimizeButton(True))
 
-        self._mgr.AddPane(
-            self.CreateSizeReportCtrl(), aui.AuiPaneInfo().
-            Name("test2").Caption("Client Size Reporter").
-            Bottom().Position(1).CloseButton(True).MaximizeButton(True).
-            MinimizeButton(True).CaptionVisible(True, left=True))
+        self._mgr.AddPane(self.CreateSizeReportCtrl(), aui.AuiPaneInfo().
+                          Name("test2").Caption("Client Size Reporter").
+                          Bottom().Position(1).CloseButton(True).
+                          MaximizeButton(True).MinimizeButton(True).
+                          CaptionVisible(True, left=True))
 
-        self._mgr.AddPane(
-            self.CreateSizeReportCtrl(), aui.AuiPaneInfo().
-            Name("test3").Caption("Client Size Reporter").
-            Bottom().CloseButton(True).MaximizeButton(True).
-            MinimizeButton(True).
-            CaptionVisible(True, left=True))
+        self._mgr.AddPane(self.CreateSizeReportCtrl(), aui.AuiPaneInfo().
+                          Name("test3").Caption("Client Size Reporter").
+                          Bottom().CloseButton(True).MaximizeButton(True).
+                          MinimizeButton(True).
+                          CaptionVisible(True, left=True))
 
         self._mgr.AddPane(self.CreateSizeReportCtrl(), aui.AuiPaneInfo().
                           Name("test4").Caption("Pane Caption").Left())
@@ -1361,49 +827,30 @@ class AuiFrame(wx.Frame):
                           Right().Row(1).CloseButton(True).
                           MaximizeButton(True).MinimizeButton(True))
 
-        self._mgr.AddPane(
-            self.CreateSizeReportCtrl(), aui.AuiPaneInfo().
-            Name("test7").Caption("Client Size Reporter").Left().Layer(1).
-            CloseButton(True).MaximizeButton(True).MinimizeButton(True))
-
-        self._mgr.AddPane(
-            self.CreateTreeCtrl(), aui.AuiPaneInfo().Name("test8").
-            Caption("Tree Pane").Left().Layer(1).Position(1).CloseButton(True).
-            MaximizeButton(True).MinimizeButton(True))
-
-        self._mgr.AddPane(
-            self.CreateSizeReportCtrl(), aui.AuiPaneInfo().
-            Name("test9").Caption("Min Size 200x100").
-            BestSize(wx.Size(200, 100)).MinSize(wx.Size(200, 100)).Bottom().
-            Layer(1).CloseButton(True).MaximizeButton(True).
-            MinimizeButton(True))
+        self._mgr.AddPane(self.CreateSizeReportCtrl(), aui.AuiPaneInfo().
+                          Name("test7").Caption("Client Size Reporter").
+                          Left().Layer(1).CloseButton(True).
+                          MaximizeButton(True).MinimizeButton(True))
 
         self._mgr.AddPane(self.CreateTreeCtrl(), aui.AuiPaneInfo().
-                          Name("autonotebook").Caption("Auto NB").
+                          Name("test8").Caption("Tree Pane").
+                          Left().Layer(1).Position(1).CloseButton(True).
+                          MaximizeButton(True).MinimizeButton(True))
+
+        self._mgr.AddPane(self.CreateSizeReportCtrl(), aui.AuiPaneInfo().
+                          Name("test9").Caption("Min Size 200x100").
+                          BestSize(wx.Size(200, 100)).
+                          MinSize(wx.Size(200, 100)).Bottom().Layer(1).
+                          CloseButton(True).MaximizeButton(True).
+                          MinimizeButton(True))
+
+        self._mgr.AddPane(self.CreateTextCtrl(), aui.AuiPaneInfo().
+                          Name("autonotebook").Caption("Console").
                           Bottom().Layer(1).Position(1).MinimizeButton(True))
 
-        wnd10 = self.CreateTextCtrl(
-            "This pane will prompt the user before hiding.")
-        self._mgr.AddPane(
-            wnd10, aui.AuiPaneInfo().
-            Name("test10").Caption("Text Pane with Hide Prompt").
-            Bottom().MinimizeButton(True),
-            target=self._mgr.GetPane("autonotebook"))
-
-        self._mgr.AddPane(self.CreateTreeCtrl(), aui.AuiPaneInfo().
-                          Name("thirdauto").Caption("A Third Auto-NB Pane").
-                          Bottom().MinimizeButton(True),
-                          target=self._mgr.GetPane("autonotebook"))
-
-        self._mgr.AddPane(
-            self.CreateSizeReportCtrl(), aui.AuiPaneInfo().
-            Name("test11").Caption("Fixed Pane").
-            Bottom().Layer(1).Position(2).Fixed().MinimizeButton(True))
-
-        self._mgr.AddPane(
-            SettingsPanel(self, self), aui.AuiPaneInfo().
-            Name("settings").Caption("Dock Manager Settings").
-            Dockable(False).Float().Hide().MinimizeButton(True))
+        self._mgr.AddPane(SettingsPanel(self, self), aui.AuiPaneInfo().
+                          Name("settings").Caption("Dock Manager Settings").
+                          Dockable(False).Float().Hide().MinimizeButton(True))
 
         # create some center panes
 
@@ -1432,45 +879,9 @@ class AuiFrame(wx.Frame):
                           CenterPane().PaneBorder(False))
 
         # add the toolbars to the manager
-        self._mgr.AddPane(
-            tb1, aui.AuiPaneInfo().Name("tb1").Caption("Big Toolbar").
-            ToolbarPane().Top())
-
-        self._mgr.AddPane(
-            tb2, aui.AuiPaneInfo().Name("tb2").Caption("Toolbar 2").
-            ToolbarPane().Top().Row(1))
-
-        self._mgr.AddPane(
-            tb3, aui.AuiPaneInfo().Name("tb3").Caption("Toolbar 3").
-            ToolbarPane().Top().Row(1).Position(1))
-
-        self._mgr.AddPane(
-            tb4,
-            aui.AuiPaneInfo().Name("tb4").Caption("Sample Bookmark Toolbar").
-            ToolbarPane().Top().Row(2))
-
-        self._mgr.AddPane(
-            tb5,
-            aui.AuiPaneInfo().Name("tb5").Caption("Sample Vertical Toolbar").
-            ToolbarPane().Left().GripperTop())
-
-        self._mgr.AddPane(
-            tb6, aui.AuiPaneInfo().
-            Name("tb6").Caption("Sample Vertical Clockwise Rotated Toolbar").
-            ToolbarPane().Right().GripperTop().TopDockable(False).
-            BottomDockable(False))
-
-        self._mgr.AddPane(
-            wx.Button(self, -1, "Test Button"),
-            aui.AuiPaneInfo().Name("tb7").ToolbarPane().Top().Row(2).
-            Position(1))
-
-        # Show how to add a control inside a tab
-        notebook = self._mgr.GetPane("notebook_content").window
-        self.gauge = ProgressGauge(notebook, size=(55, 15))
-        notebook.AddControlToPage(4, self.gauge)
-
-        self._main_notebook = notebook
+        self._mgr.AddPane(wx.Button(self, -1, "Test Button"),
+                          aui.AuiPaneInfo().Name("tb7").ToolbarPane(
+                          ).Top().Row(2).Position(1))
 
         # make some default perspectives
         perspective_all = self._mgr.SavePerspective()
@@ -1490,7 +901,6 @@ class AuiFrame(wx.Frame):
         self._mgr.GetPane("thirdauto").Show()
         self._mgr.GetPane("test10").Show()
         self._mgr.GetPane("notebook_content").Show()
-
         perspective_default = self._mgr.SavePerspective()
 
         self._perspectives = []
@@ -1503,13 +913,6 @@ class AuiFrame(wx.Frame):
         self._nb_perspectives.append(nb_perspective_default)
 
         self._mgr.LoadPerspective(perspective_default)
-
-        # Show how to get a custom minimizing behaviour, i.e., to minimize a
-        # pane inside an existing AuiToolBar
-        tree = self._mgr.GetPane("test8")
-        tree.MinimizeMode(aui.AUI_MINIMIZE_POS_TOOLBAR)
-        toolbarPane = self._mgr.GetPane(tb4)
-        tree.MinimizeTarget(toolbarPane)
 
         # "commit" all changes made to AuiManager
         self._mgr.Update()
@@ -1556,15 +959,12 @@ class AuiFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.OnMinimizeCaption, id=ID_MinimizeCaptHorz)
         self.Bind(wx.EVT_MENU, self.OnMinimizeCaption, id=ID_MinimizeCaptHide)
         self.Bind(wx.EVT_MENU, self.OnManagerFlag, id=ID_AnimateFrames)
-        self.Bind(wx.EVT_MENU, self.OnSetIconsOnPanes, id=ID_PaneIcons)
         self.Bind(wx.EVT_MENU, self.OnTransparentPane, id=ID_TransparentPane)
         self.Bind(wx.EVT_MENU, self.OnDockArt, id=ID_DefaultDockArt)
         self.Bind(wx.EVT_MENU, self.OnDockArt, id=ID_ModernDockArt)
         self.Bind(wx.EVT_MENU, self.OnSnapToScreen, id=ID_SnapToScreen)
         self.Bind(wx.EVT_MENU, self.OnSnapPanes, id=ID_SnapPanes)
         self.Bind(wx.EVT_MENU, self.OnFlyOut, id=ID_FlyOut)
-        self.Bind(wx.EVT_MENU, self.OnCustomPaneButtons,
-                  id=ID_CustomPaneButtons)
         self.Bind(wx.EVT_MENU, self.OnManagerFlag, id=ID_AllowActivePane)
         self.Bind(wx.EVT_MENU, self.OnNotebookFlag,
                   id=ID_NotebookTabFixedWidth)
@@ -1600,8 +1000,6 @@ class AuiFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.OnNotebookFlag, id=ID_NotebookCloseOnLeft)
         self.Bind(wx.EVT_MENU, self.OnTabAlignment, id=ID_NotebookAlignTop)
         self.Bind(wx.EVT_MENU, self.OnTabAlignment, id=ID_NotebookAlignBottom)
-        self.Bind(wx.EVT_MENU, self.OnCustomTabButtons,
-                  id=ID_NotebookCustomButtons)
         self.Bind(wx.EVT_MENU, self.OnMinMaxTabWidth,
                   id=ID_NotebookMinMaxWidth)
         self.Bind(wx.EVT_MENU, self.OnPreview, id=ID_NotebookPreview)
@@ -1648,13 +1046,11 @@ class AuiFrame(wx.Frame):
         self.Bind(wx.EVT_UPDATE_UI, self.OnUpdateUI, id=ID_NoHint)
         self.Bind(wx.EVT_UPDATE_UI, self.OnUpdateUI, id=ID_NoVenetianFade)
         self.Bind(wx.EVT_UPDATE_UI, self.OnUpdateUI, id=ID_LiveUpdate)
-        self.Bind(wx.EVT_UPDATE_UI, self.OnUpdateUI, id=ID_PaneIcons)
         self.Bind(wx.EVT_UPDATE_UI, self.OnUpdateUI, id=ID_AnimateFrames)
         self.Bind(wx.EVT_UPDATE_UI, self.OnUpdateUI, id=ID_DefaultDockArt)
         self.Bind(wx.EVT_UPDATE_UI, self.OnUpdateUI, id=ID_ModernDockArt)
         self.Bind(wx.EVT_UPDATE_UI, self.OnUpdateUI, id=ID_SnapPanes)
         self.Bind(wx.EVT_UPDATE_UI, self.OnUpdateUI, id=ID_FlyOut)
-        self.Bind(wx.EVT_UPDATE_UI, self.OnUpdateUI, id=ID_CustomPaneButtons)
 
         self.Bind(wx.EVT_UPDATE_UI, self.OnUpdateUI,
                   id=ID_NotebookTabFixedWidth)
@@ -1682,8 +1078,6 @@ class AuiFrame(wx.Frame):
         self.Bind(wx.EVT_UPDATE_UI, self.OnUpdateUI, id=ID_NotebookSmartTab)
         self.Bind(wx.EVT_UPDATE_UI, self.OnUpdateUI,
                   id=ID_NotebookUseImagesDropDown)
-        self.Bind(wx.EVT_UPDATE_UI, self.OnUpdateUI,
-                  id=ID_NotebookCustomButtons)
         self.Bind(wx.EVT_UPDATE_UI, self.OnUpdateUI, id=ID_VetoTree)
         self.Bind(wx.EVT_UPDATE_UI, self.OnUpdateUI, id=ID_VetoText)
         self.Bind(wx.EVT_UPDATE_UI, self.OnUpdateUI, id=ID_StandardGuides)
@@ -1704,28 +1098,12 @@ class AuiFrame(wx.Frame):
         self.Bind(aui.EVT_AUI_PANE_DOCKING, self.OnFloatDock)
         self.Bind(aui.EVT_AUI_PANE_DOCKED, self.OnFloatDock)
 
-        self.Bind(wx.EVT_CLOSE, self.OnClose)
-
-        self.Bind(wx.EVT_TIMER, self.TimerHandler)
         self.timer = wx.Timer(self)
         self.timer.Start(100)
 
     def __del__(self):
 
         self.timer.Stop()
-
-    def OnClose(self, event):
-
-        self.timer.Stop()
-        self._mgr.UnInit()
-        event.Skip()
-
-    def TimerHandler(self, event):
-
-        try:
-            self.gauge.Pulse()
-        except wx.PyDeadObjectError:
-            self.timer.Stop()
 
     def GetDockArt(self):
 
@@ -1765,24 +1143,6 @@ class AuiFrame(wx.Frame):
 
         self._mgr.SetAGWFlags(agwFlags)
 
-    def OnSetIconsOnPanes(self, event):
-
-        panes = self._mgr.GetAllPanes()
-        checked = event.IsChecked()
-        self._pane_icons = checked
-
-        for pane in panes:
-            if checked:
-                randimage = random.randint(0, len(ArtIDs) - 1)
-                bmp = wx.ArtProvider_GetBitmap(eval(ArtIDs[randimage]),
-                                               wx.ART_OTHER, (16, 16))
-            else:
-                bmp = None
-
-            pane.Icon(bmp)
-
-        self._mgr.Update()
-
     def OnTransparentPane(self, event):
 
         dlg = wx.TextEntryDialog(
@@ -1799,7 +1159,7 @@ class AuiFrame(wx.Frame):
         except:
             dlg = wx.MessageDialog(
                 self, 'Invalid transparency value. Transparency'
-                ' should be an integer between 0 and 255.',
+                      ' should be an integer between 0 and 255.',
                 'Error',
                 wx.OK | wx.ICON_ERROR)
             dlg.ShowModal()
@@ -1809,7 +1169,7 @@ class AuiFrame(wx.Frame):
         if transparency < 0 or transparency > 255:
             dlg = wx.MessageDialog(
                 self, 'Invalid transparency value. Transparency'
-                ' should be an integer between 0 and 255.',
+                      ' should be an integer between 0 and 255.',
                 'Error',
                 wx.OK | wx.ICON_ERROR)
             dlg.ShowModal()
@@ -1880,8 +1240,8 @@ class AuiFrame(wx.Frame):
         else:
 
             for pane in allPanes:
-                if pane.IsToolbar() or isinstance(pane.window,
-                                                  aui.AuiNotebook):
+                if pane.IsToolbar() or isinstance(
+                        pane.window, aui.AuiNotebook):
                     continue
 
                 pane.Caption(self._captions[pane.name])
@@ -1909,24 +1269,9 @@ class AuiFrame(wx.Frame):
 
         self._mgr.Update()
 
-    def OnCustomPaneButtons(self, event):
-
-        self._custom_pane_buttons = checked = event.IsChecked()
-        art = self._mgr.GetArtProvider()
-
-        if not checked:
-            art.SetDefaultPaneBitmaps(wx.Platform == "__WXMAC__")
-        else:
-            for bmp, button, active, maximize in CUSTOM_PANE_BITMAPS:
-                art.SetCustomPaneBitmap(bmp.GetBitmap(), button, active,
-                                        maximize)
-
-        self._mgr.Update()
-        self.Refresh()
-
     def OnCustomizeToolbar(self, event):
 
-        wx.MessageBox("Customize Toolbar clicked", "AUI Test")
+        wx.MessageBox("Customize Toolbar clicked", "AMT Test")
 
     def OnGradient(self, event):
 
@@ -2004,10 +1349,9 @@ class AuiFrame(wx.Frame):
 
         all_panes = self._mgr.GetAllPanes()
         for pane in all_panes:
-            if pane.name != "test8":
-                pane.MinimizeMode(
-                    minize_mode | (
-                        pane.GetMinimizeMode() & aui.AUI_MINIMIZE_CAPT_MASK))
+            pane.MinimizeMode(minize_mode |
+                              (pane.GetMinimizeMode() &
+                               aui.AUI_MINIMIZE_CAPT_MASK))
 
     def OnMinimizeCaption(self, event):
 
@@ -2023,9 +1367,9 @@ class AuiFrame(wx.Frame):
 
         all_panes = self._mgr.GetAllPanes()
         for pane in all_panes:
-            pane.MinimizeMode(
-                minize_mode | (
-                    pane.GetMinimizeMode() & aui.AUI_MINIMIZE_POS_MASK))
+            pane.MinimizeMode(minize_mode |
+                              (pane.GetMinimizeMode() &
+                               aui.AUI_MINIMIZE_POS_MASK))
 
     def OnNotebookFlag(self, event):
 
@@ -2174,9 +1518,6 @@ class AuiFrame(wx.Frame):
         elif evId == ID_NativeMiniframes:
             event.Check(aui.AuiManager_UseNativeMiniframes(self._mgr))
 
-        elif evId == ID_PaneIcons:
-            event.Check(self._pane_icons)
-
         elif evId == ID_SmoothDocking:
             event.Check((agwFlags & aui.AUI_MGR_SMOOTH_DOCKING) != 0)
 
@@ -2184,12 +1525,12 @@ class AuiFrame(wx.Frame):
             event.Check((agwFlags & aui.AUI_MGR_ANIMATE_FRAMES) != 0)
 
         elif evId == ID_DefaultDockArt:
-            event.Check(isinstance(self._mgr.GetArtProvider(),
-                                   aui.AuiDefaultDockArt))
+            event.Check(isinstance(
+                self._mgr.GetArtProvider(), aui.AuiDefaultDockArt))
 
         elif evId == ID_ModernDockArt:
-            event.Check(isinstance(self._mgr.GetArtProvider(),
-                                   aui.ModernDockArt))
+            event.Check(isinstance(
+                self._mgr.GetArtProvider(), aui.ModernDockArt))
 
         elif evId == ID_SnapPanes:
             event.Check(self._snapped)
@@ -2205,31 +1546,29 @@ class AuiFrame(wx.Frame):
             event.Check(agwFlags & aui.AUI_MGR_WHIDBEY_DOCKING_GUIDES != 0)
 
         elif evId == ID_StandardGuides:
-            event.Check((agwFlags & aui.AUI_MGR_AERO_DOCKING_GUIDES == 0) and
-                        (agwFlags & aui.AUI_MGR_WHIDBEY_DOCKING_GUIDES == 0))
-
-        elif evId == ID_CustomPaneButtons:
-            event.Check(self._custom_pane_buttons)
+            event.Check((
+                agwFlags & aui.AUI_MGR_AERO_DOCKING_GUIDES == 0) and
+                (agwFlags & aui.AUI_MGR_WHIDBEY_DOCKING_GUIDES == 0))
 
         elif evId == ID_PreviewMinimized:
             event.Check(agwFlags & aui.AUI_MGR_PREVIEW_MINIMIZED_PANES)
 
         elif evId == ID_NotebookNoCloseButton:
-            event.Check((self._notebook_style &
-                         (aui.AUI_NB_CLOSE_BUTTON |
-                          aui.AUI_NB_CLOSE_ON_ALL_TABS |
-                          aui.AUI_NB_CLOSE_ON_ACTIVE_TAB)) != 0)
+            event.Check((
+                self._notebook_style & (aui.AUI_NB_CLOSE_BUTTON |
+                                        aui.AUI_NB_CLOSE_ON_ALL_TABS |
+                                        aui.AUI_NB_CLOSE_ON_ACTIVE_TAB)) != 0)
 
         elif evId == ID_NotebookCloseButton:
             event.Check((self._notebook_style & aui.AUI_NB_CLOSE_BUTTON) != 0)
 
         elif evId == ID_NotebookCloseButtonAll:
-            event.Check((self._notebook_style &
-                         aui.AUI_NB_CLOSE_ON_ALL_TABS) != 0)
+            event.Check((
+                self._notebook_style & aui.AUI_NB_CLOSE_ON_ALL_TABS) != 0)
 
         elif evId == ID_NotebookCloseButtonActive:
-            event.Check((self._notebook_style &
-                         aui.AUI_NB_CLOSE_ON_ACTIVE_TAB) != 0)
+            event.Check((
+                self._notebook_style & aui.AUI_NB_CLOSE_ON_ACTIVE_TAB) != 0)
 
         elif evId == ID_NotebookAllowTabSplit:
             event.Check((self._notebook_style & aui.AUI_NB_TAB_SPLIT) != 0)
@@ -2247,39 +1586,35 @@ class AuiFrame(wx.Frame):
             event.Check((self._notebook_style & aui.AUI_NB_TAB_MOVE) != 0)
 
         elif evId == ID_NotebookAllowTabExternalMove:
-            event.Check((self._notebook_style &
-                         aui.AUI_NB_TAB_EXTERNAL_MOVE) != 0)
+            event.Check((
+                self._notebook_style & aui.AUI_NB_TAB_EXTERNAL_MOVE) != 0)
 
         elif evId == ID_NotebookScrollButtons:
-            event.Check((self._notebook_style &
-                         aui.AUI_NB_SCROLL_BUTTONS) != 0)
+            event.Check((
+                self._notebook_style & aui.AUI_NB_SCROLL_BUTTONS) != 0)
 
         elif evId == ID_NotebookWindowList:
-            event.Check((self._notebook_style &
-                         aui.AUI_NB_WINDOWLIST_BUTTON) != 0)
+            event.Check((
+                self._notebook_style & aui.AUI_NB_WINDOWLIST_BUTTON) != 0)
 
         elif evId == ID_NotebookTabFixedWidth:
-            event.Check((self._notebook_style &
-                         aui.AUI_NB_TAB_FIXED_WIDTH) != 0)
+            event.Check((
+                self._notebook_style & aui.AUI_NB_TAB_FIXED_WIDTH) != 0)
 
         elif evId == ID_NotebookHideSingle:
-            event.Check((self._notebook_style &
-                         aui.AUI_NB_HIDE_ON_SINGLE_TAB) != 0)
+            event.Check((
+                self._notebook_style & aui.AUI_NB_HIDE_ON_SINGLE_TAB) != 0)
 
         elif evId == ID_NotebookSmartTab:
-            event.Check((self._notebook_style &
-                         aui.AUI_NB_SMART_TABS) != 0)
+            event.Check((self._notebook_style & aui.AUI_NB_SMART_TABS) != 0)
 
         elif evId == ID_NotebookUseImagesDropDown:
-            event.Check((self._notebook_style &
-                         aui.AUI_NB_USE_IMAGES_DROPDOWN) != 0)
+            event.Check((
+                self._notebook_style & aui.AUI_NB_USE_IMAGES_DROPDOWN) != 0)
 
         elif evId == ID_NotebookCloseOnLeft:
-            event.Check((self._notebook_style &
-                         aui.AUI_NB_CLOSE_ON_TAB_LEFT) != 0)
-
-        elif evId == ID_NotebookCustomButtons:
-            event.Check(self._custom_tab_buttons)
+            event.Check((
+                self._notebook_style & aui.AUI_NB_CLOSE_ON_TAB_LEFT) != 0)
 
         elif evId == ID_NotebookArtGloss:
             event.Check(self._notebook_theme == 0)
@@ -2322,14 +1657,14 @@ class AuiFrame(wx.Frame):
             else:
                 msg += "close/hide "
 
-            res = wx.MessageBox(msg + "this pane?", "AUI", wx.YES_NO, self)
+            res = wx.MessageBox(msg + "this pane?", "AMT", wx.YES_NO, self)
             if res != wx.YES:
                 event.Veto()
 
     def OnCreatePerspective(self, event):
 
-        dlg = wx.TextEntryDialog(self, "Enter a name for the new perspective:",
-                                 "AUI Test")
+        dlg = wx.TextEntryDialog(
+            self, "Enter a name for the new perspective:", "AMT Test")
 
         dlg.SetValue("Perspective %u" % (len(self._perspectives) + 1))
         if dlg.ShowModal() != wx.ID_OK:
@@ -2338,8 +1673,8 @@ class AuiFrame(wx.Frame):
         if len(self._perspectives) == 0:
             self._perspectives_menu.AppendSeparator()
 
-        self._perspectives_menu.Append(
-            ID_FirstPerspective + len(self._perspectives), dlg.GetValue())
+        self._perspectives_menu.Append(ID_FirstPerspective + len(
+            self._perspectives), dlg.GetValue())
         self._perspectives.append(self._mgr.SavePerspective())
 
     def OnCopyPerspectiveCode(self, event):
@@ -2358,8 +1693,8 @@ class AuiFrame(wx.Frame):
 
     def OnCreateNBPerspective(self, event):
 
-        dlg = wx.TextEntryDialog(self, "Enter a name for the new perspective:",
-                                 "AUI Test")
+        dlg = wx.TextEntryDialog(
+            self, "Enter a name for the new perspective:", "AMT Test")
 
         dlg.SetValue("Perspective %u" % (len(self._nb_perspectives) + 1))
         if dlg.ShowModal() != wx.ID_OK:
@@ -2386,11 +1721,8 @@ class AuiFrame(wx.Frame):
     def OnRestoreNBPerspective(self, event):
 
         auibook = self._mgr.GetPane("notebook_content").window
-        auibook.LoadPerspective(
-            self._nb_perspectives[event.GetId() - ID_FirstNBPerspective])
-
-        self.gauge = ProgressGauge(auibook, size=(55, 15))
-        auibook.AddControlToPage(4, self.gauge)
+        auibook.LoadPerspective(self._nb_perspectives[event.GetId() -
+                                                      ID_FirstNBPerspective])
 
     def OnGuides(self, event):
 
@@ -2417,7 +1749,7 @@ class AuiFrame(wx.Frame):
 
             res = wx.MessageBox(
                 "Are you sure you want to close/hide this notebook page?",
-                "AUI", wx.YES_NO, self)
+                "AMT", wx.YES_NO, self)
             if res != wx.YES:
                 event.Veto()
 
@@ -2459,11 +1791,11 @@ class AuiFrame(wx.Frame):
 
     def OnCreateNotebook(self, event):
 
-        self._mgr.AddPane(self.CreateNotebook(), aui.AuiPaneInfo().
-                          Caption("Notebook").
-                          Float().FloatingPosition(self.GetStartPosition()).
-                          CloseButton(True).MaximizeButton(True).
-                          MinimizeButton(True))
+        self._mgr.AddPane(
+            self.CreateNotebook(), aui.AuiPaneInfo().
+            Caption("Notebook").
+            Float().FloatingPosition(self.GetStartPosition()).
+            CloseButton(True).MaximizeButton(True).MinimizeButton(True))
         self._mgr.Update()
 
     def OnCreateText(self, event):
@@ -2476,11 +1808,11 @@ class AuiFrame(wx.Frame):
 
     def OnCreateSizeReport(self, event):
 
-        self._mgr.AddPane(self.CreateSizeReportCtrl(), aui.AuiPaneInfo().
-                          Caption("Client Size Reporter").
-                          Float().FloatingPosition(self.GetStartPosition()).
-                          CloseButton(True).MaximizeButton(True).
-                          MinimizeButton(True))
+        self._mgr.AddPane(
+            self.CreateSizeReportCtrl(), aui.AuiPaneInfo().
+            Caption("Client Size Reporter").
+            Float().FloatingPosition(self.GetStartPosition()).
+            CloseButton(True).MaximizeButton(True).MinimizeButton(True))
         self._mgr.Update()
 
     def OnChangeContentPane(self, event):
@@ -2522,8 +1854,8 @@ class AuiFrame(wx.Frame):
 
             # create the popup menu
             menuPopup = wx.Menu()
-            bmp = wx.ArtProvider.GetBitmap(wx.ART_QUESTION, wx.ART_OTHER,
-                                           wx.Size(16, 16))
+            bmp = wx.ArtProvider.GetBitmap(
+                wx.ART_QUESTION, wx.ART_OTHER, wx.Size(16, 16))
 
             m1 = wx.MenuItem(menuPopup, 10001, "Drop Down Item 1")
             m1.SetBitmap(bmp)
@@ -2573,38 +1905,14 @@ class AuiFrame(wx.Frame):
                 nb.Update()
                 nb.Refresh()
 
-    def OnCustomTabButtons(self, event):
-
-        checked = event.IsChecked()
-        self._custom_tab_buttons = checked
-        auibook = self._mgr.GetPane("notebook_content").window
-
-        left = CUSTOM_TAB_BUTTONS["Left"]
-        for btn, ids in left:
-            if checked:
-                auibook.AddTabAreaButton(ids, wx.LEFT, btn.GetBitmap())
-            else:
-                auibook.RemoveTabAreaButton(ids)
-
-        right = CUSTOM_TAB_BUTTONS["Right"]
-        for btn, ids in right:
-            if checked:
-                auibook.AddTabAreaButton(ids, wx.RIGHT, btn.GetBitmap())
-            else:
-                auibook.RemoveTabAreaButton(ids)
-
-        auibook.Refresh()
-        auibook.Update()
-
     def OnMinMaxTabWidth(self, event):
 
         auibook = self._mgr.GetPane("notebook_content").window
         minTabWidth, maxTabWidth = auibook.GetMinMaxTabWidth()
 
         dlg = wx.TextEntryDialog(
-            self,
-            "Enter the minimum and maximum tab widths, separated by a comma:",
-            "AuiNotebook Tab Widths")
+            self, "Enter the minimum and maximum tab widths, separated by "
+                  "a comma: AuiNotebook Tab Widths")
 
         dlg.SetValue("%d,%d" % (minTabWidth, maxTabWidth))
         if dlg.ShowModal() != wx.ID_OK:
@@ -2618,9 +1926,8 @@ class AuiFrame(wx.Frame):
             minTabWidth, maxTabWidth = int(minTabWidth), int(maxTabWidth)
         except:
             dlg = wx.MessageDialog(
-                self,
-                'Invalid minimum/maximum tab width. Tab widths should be'
-                ' 2 integers separated by a comma.',
+                self, 'Invalid minimum/maximum tab width. Tab widths should '
+                      'be 2 integers separated by a comma.',
                 'Error',
                 wx.OK | wx.ICON_ERROR)
             dlg.ShowModal()
@@ -2629,9 +1936,8 @@ class AuiFrame(wx.Frame):
 
         if minTabWidth > maxTabWidth:
             dlg = wx.MessageDialog(
-                self,
-                'Invalid minimum/maximum tab width. Minimum tab width'
-                ' should be less of equal than maximum tab width.',
+                self, 'Invalid minimum/maximum tab width. Minimum tab width'
+                      ' should be less of equal than maximum tab width.',
                 'Error',
                 wx.OK | wx.ICON_ERROR)
             dlg.ShowModal()
@@ -2689,19 +1995,15 @@ class AuiFrame(wx.Frame):
         self.log.write(strs + "\n")
 
     def OnExit(self, event):
-
         self.Close(True)
 
     def OnAbout(self, event):
 
-        msg = "This Is The About Dialog Of The Pure Python Version Of AUI.\n\n" + \
-              "Author: Andrea Gavana @ 23 Dec 2005\n\n" + \
-              "Please Report Any Bug/Requests Of Improvements\n" + \
-              "To Me At The Following Adresses:\n\n" + \
-              "andrea.gavana@maerskoil.com\n" + "andrea.gavana@gmail.com\n\n" + \
-              "Welcome To wxPython " + wx.VERSION_STRING + "!!"
+        msg = "Artifact Management Tool v1.0.0.\n\n" + \
+              "Author: Kenneth E. Bellock\n\n" + \
+              "Please Report Any Bug/Requests Of Improvements\n"
 
-        dlg = wx.MessageDialog(self, msg, "AUI Demo",
+        dlg = wx.MessageDialog(self, msg, "AMT",
                                wx.OK | wx.ICON_INFORMATION)
 
         if wx.Platform != '__WXMAC__':
@@ -2715,7 +2017,7 @@ class AuiFrame(wx.Frame):
         if ctrl_text.strip():
             text = ctrl_text
         else:
-            text = "This is text box %d" % self._textCount
+            text = ""
             self._textCount += 1
 
         return wx.TextCtrl(self, -1, text, wx.Point(0, 0), wx.Size(150, 90),
@@ -2740,7 +2042,7 @@ class AuiFrame(wx.Frame):
             wx.ART_NORMAL_FILE, wx.ART_OTHER, wx.Size(16, 16)))
         tree.AssignImageList(imglist)
 
-        root = tree.AddRoot("AUI Project", 0)
+        root = tree.AddRoot("AMT Project", 0)
         items = []
 
         items.append(tree.AppendItem(root, "Item 1", 0))
@@ -2762,8 +2064,8 @@ class AuiFrame(wx.Frame):
 
     def CreateSizeReportCtrl(self, width=80, height=80):
 
-        ctrl = SizeReportCtrl(self, -1, wx.DefaultPosition,
-                              wx.Size(width, height), self._mgr)
+        ctrl = SizeReportCtrl(
+            self, -1, wx.DefaultPosition, wx.Size(width, height), self._mgr)
         return ctrl
 
     def CreateHTMLCtrl(self, parent=None):
@@ -2771,8 +2073,8 @@ class AuiFrame(wx.Frame):
         if not parent:
             parent = self
 
-        ctrl = wx.html.HtmlWindow(parent, -1, wx.DefaultPosition,
-                                  wx.Size(400, 300))
+        ctrl = wx.html.HtmlWindow(
+            parent, -1, wx.DefaultPosition, wx.Size(400, 300))
         ctrl.SetPage(GetIntroText())
         return ctrl
 
@@ -2790,71 +2092,10 @@ class AuiFrame(wx.Frame):
         art = arts[self._notebook_theme]()
         ctrl.SetArtProvider(art)
 
-        page_bmp = wx.ArtProvider.GetBitmap(wx.ART_NORMAL_FILE, wx.ART_OTHER,
-                                            wx.Size(16, 16))
-        ctrl.AddPage(self.CreateHTMLCtrl(ctrl), "Welcome to AUI", False,
-                     page_bmp)
-
-        panel = wx.Panel(ctrl, -1)
-        flex = wx.FlexGridSizer(0, 2)
-        flex.Add((5, 5))
-        flex.Add((5, 5))
-        flex.Add(wx.StaticText(
-            panel, -1, "wxTextCtrl:"), 0, wx.ALL | wx.ALIGN_CENTRE, 5)
-        flex.Add(wx.TextCtrl(panel, -1, "", wx.DefaultPosition,
-                             wx.Size(100, -1)),
-                 1, wx.ALL | wx.ALIGN_CENTRE, 5)
-        flex.Add(wx.StaticText(
-            panel, -1, "wxSpinCtrl:"), 0, wx.ALL | wx.ALIGN_CENTRE, 5)
-        flex.Add(wx.SpinCtrl(
-            panel, -1, "5", wx.DefaultPosition, wx.Size(100, -1),
-            wx.SP_ARROW_KEYS, 5, 50, 5), 0, wx.ALL | wx.ALIGN_CENTRE, 5)
-        flex.Add((5, 5))
-        flex.Add((5, 5))
-        flex.AddGrowableRow(0)
-        flex.AddGrowableRow(3)
-        flex.AddGrowableCol(1)
-        panel.SetSizer(flex)
-        ctrl.AddPage(panel, "Disabled", False, page_bmp)
-
-        ctrl.AddPage(wx.TextCtrl(
-            ctrl, -1, "Some text", wx.DefaultPosition, wx.DefaultSize,
-            wx.TE_MULTILINE | wx.NO_BORDER), "DClick Edit!", False, page_bmp)
-
-        ctrl.AddPage(wx.TextCtrl(
-            ctrl, -1, "Some more text", wx.DefaultPosition, wx.DefaultSize,
-            wx.TE_MULTILINE | wx.NO_BORDER), "Blue Tab")
-
-        ctrl.AddPage(wx.TextCtrl(
-            ctrl, -1, "Some more text", wx.DefaultPosition, wx.DefaultSize,
-            wx.TE_MULTILINE | wx.NO_BORDER), "A Control")
-
-        ctrl.AddPage(wx.TextCtrl(
-            ctrl, -1, "Some more text", wx.DefaultPosition, wx.DefaultSize,
-            wx.TE_MULTILINE | wx.NO_BORDER), "wxTextCtrl 4")
-
-        ctrl.AddPage(wx.TextCtrl(
-            ctrl, -1, "Some more text", wx.DefaultPosition, wx.DefaultSize,
-            wx.TE_MULTILINE | wx.NO_BORDER), "wxTextCtrl 5")
-
-        ctrl.AddPage(wx.TextCtrl(
-            ctrl, -1, "Some more text", wx.DefaultPosition, wx.DefaultSize,
-            wx.TE_MULTILINE | wx.NO_BORDER), "wxTextCtrl 6")
-
-        ctrl.AddPage(wx.TextCtrl(
-            ctrl, -1, "Some more text", wx.DefaultPosition, wx.DefaultSize,
-            wx.TE_MULTILINE | wx.NO_BORDER), "wxTextCtrl 7 (longer title)")
-
-        ctrl.AddPage(wx.TextCtrl(
-            ctrl, -1, "Some more text", wx.DefaultPosition, wx.DefaultSize,
-            wx.TE_MULTILINE | wx.NO_BORDER), "wxTextCtrl 8")
-
-        # Demonstrate how to disable a tab
-        ctrl.EnableTab(1, False)
-
-        ctrl.SetPageTextColour(2, wx.RED)
-        ctrl.SetPageTextColour(3, wx.BLUE)
-        ctrl.SetRenamable(2, True)
+        page_bmp = wx.ArtProvider.GetBitmap(
+            wx.ART_NORMAL_FILE, wx.ART_OTHER, wx.Size(16, 16))
+        ctrl.AddPage(self.CreateHTMLCtrl(
+            ctrl), "Welcome to AMT", False, page_bmp)
 
         return ctrl
 
@@ -2878,14 +2119,14 @@ class AuiFrame(wx.Frame):
                 if not caption:
                     continue
 
-                toolBar = (isinstance(pane.window, wx.ToolBar) or
-                           isinstance(pane.window, aui.AuiToolBar))
-                bitmap = (pane.icon.IsOk() and
-                          [pane.icon] or [wx.NullBitmap])[0]
+                toolBar = isinstance(pane.window, wx.ToolBar) or isinstance(
+                    pane.window, aui.AuiToolBar)
+                bitmap = (pane.icon.IsOk() and [pane.icon] or [
+                    wx.NullBitmap])[0]
 
                 if (toolBar and k == 1) or (not toolBar and k == 0):
-                    items.AddItem(
-                        caption, name, -1, bitmap).SetWindow(pane.window)
+                    items.AddItem(caption, name, -1, bitmap).SetWindow(
+                        pane.window)
 
         # Now add the wxAuiNotebook pages
         items.AddGroup(_("Notebook Pages"), "pages").BreakColumn()
@@ -2946,112 +2187,18 @@ class AuiFrame(wx.Frame):
 
 def GetIntroText():
 
-    return "<html><body><h3>Welcome to AUI</h3></body></html>"
+    text = (
+        "<html><body>"
+        "<h3>Welcome to AMT</h3>"
+        "<br/><b>Overview</b><br/>"
+        "<p>AMT is an artifact management tool. <\p>"
+        "</body></html>")
+
+    return text
 
 
-class ParentFrame(aui.AuiMDIParentFrame):
-
-    def __init__(self, parent):
-
-        aui.AuiMDIParentFrame.__init__(self, parent, -1,
-                                       title="AGW AuiMDIParentFrame",
-                                       size=(640, 480),
-                                       style=wx.DEFAULT_FRAME_STYLE)
-        self.count = 0
-
-        # set frame icon
-        self.SetIcon(Mondrian.GetIcon())
-
-        mb = self.MakeMenuBar()
-        self.SetMenuBar(mb)
-        self.CreateStatusBar()
-
-    def MakeMenuBar(self):
-
-        mb = wx.MenuBar()
-        menu = wx.Menu()
-        item = menu.Append(-1, "New child window\tCtrl-N")
-        self.Bind(wx.EVT_MENU, self.OnNewChild, item)
-        item = menu.Append(-1, "Close parent")
-        self.Bind(wx.EVT_MENU, self.OnDoClose, item)
-        mb.Append(menu, "&File")
-        return mb
-
-    def OnNewChild(self, evt):
-
-        self.count += 1
-        child = ChildFrame(self, self.count)
-        child.Show()
-
-    def OnDoClose(self, evt):
-        self.Close()
-
-
-class ChildFrame(aui.AuiMDIChildFrame):
-
-    def __init__(self, parent, count):
-
-        aui.AuiMDIChildFrame.__init__(self, parent, -1,
-                                      title="Child: %d" % count)
-        mb = parent.MakeMenuBar()
-        menu = wx.Menu()
-        menu.Append(-1, "This is child %d's menu" % count)
-        mb.Append(menu, "&Child")
-        self.SetMenuBar(mb)
-
-        p = wx.Panel(self)
-        wx.StaticText(p, -1, "This is child %d" % count, (10, 10))
-        p.SetBackgroundColour('light blue')
-
-        sizer = wx.BoxSizer()
-        sizer.Add(p, 1, wx.EXPAND)
-        self.SetSizer(sizer)
-
-        wx.CallAfter(self.Layout)
-
-
-def MainAUI(parent, log):
-
-    frame = AuiFrame(parent, -1, "AUI Test Frame", size=(800, 600), log=log)
-    frame.CenterOnScreen()
-    frame.Show()
-
-
-def MDIAUI(parent, log):
-
-    frame = ParentFrame(parent)
-    frame.CenterOnScreen()
-    frame.Show()
-
-
-class TestPanel(wx.Panel):
-    def __init__(self, parent, log):
-        self.log = log
-        wx.Panel.__init__(self, parent, -1)
-
-        b1 = wx.Button(self, -1, " AGW AUI Docking Library ", (50, 50))
-        self.Bind(wx.EVT_BUTTON, self.OnButton1, b1)
-
-    def OnButton1(self, event):
-        self.win = MainAUI(self, self.log)
-
-    def OnButton2(self, event):
-        self.win = MDIAUI(self, self.log)
-
-
-def runTest(frame, nb, log):
-
-    win = TestPanel(nb, log)
-    return win
-
-Mondrian = PyEmbeddedImage(
-    "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAHFJ"
-    "REFUWIXt1jsKgDAQRdF7xY25cpcWC60kioI6Fm/ahHBCMh+BRmGMnAgEWnvPpzK8dvrFCCCA"
-    "coD8og4c5Lr6WB3Q3l1TBwLYPuF3YS1gn1HphgEEEABcKERrGy0E3B0HFJg7C1N/f/kTBBBA"
-    "+Vi+AMkgFEvBPD17AAAAAElFTkSuQmCC")
-overview = GetIntroText()
 def gui():
     app = wx.App()
-    frame = AuiFrame(None)
+    frame = MainFrame(None)
     frame.Show()
     app.MainLoop()
