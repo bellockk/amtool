@@ -518,6 +518,639 @@ class SettingsPanel(wx.Panel):
         self.UpdateColours()
 
 
+class CustomDataTable(wx.grid.PyGridTableBase):
+    def __init__(self, log):
+        wx.grid.PyGridTableBase.__init__(self)
+        self.log = log
+        self.filename = None
+        self.file_data = []
+        self.data = []
+        self.col_properties = []
+        self.colLabels = []
+        self.hidden_cols = []
+        self.hidden_rows = []
+        self.filters = {}
+        self.type_map = {
+            'NUMBER': wx.grid.GRID_VALUE_NUMBER,
+            'STRING': wx.grid.GRID_VALUE_STRING,
+            'CHOICE': wx.grid.GRID_VALUE_CHOICE,
+            'BOOL': wx.grid.GRID_VALUE_BOOL,
+            'FLOAT': wx.grid.GRID_VALUE_FLOAT}
+
+    # required methods for the wxPyGridTableBase interface
+    def GetTypeName(self, row, col):
+        label = self.colLabels[col]
+        for prop in self.col_properties:
+            if prop['Name'] == label:
+                if 'Type' in prop:
+                    if prop['Type'] == 'CHOICE' and 'Choices' in prop:
+                        return wx.grid.GRID_VALUE_CHOICE + ':' + ','.join(
+                            prop['Choices'])
+                    else:
+                        return self.type_map[prop['Type']]
+        return wx.grid.GRID_VALUE_STRING
+
+    def Load(self, filename):
+
+        # Notify the grid
+        grid = self.GetView()
+        grid.BeginBatch()
+        msg = wx.grid.GridTableMessage(
+            self, wx.grid.GRIDTABLE_NOTIFY_COLS_DELETED, 1,
+            self.GetNumberCols())
+
+        grid.ProcessTableMessage(msg)
+        msg = wx.grid.GridTableMessage(
+            self, wx.grid.GRIDTABLE_NOTIFY_ROWS_DELETED, 1,
+            self.GetNumberRows())
+        grid.ProcessTableMessage(msg)
+
+        grid.EndBatch()
+
+        self.filename = filename
+        with open(filename, 'r') as f:
+            data = safe_load(f)
+
+        self.file_data = data['Artifacts']
+        self.data = [d for d in self.file_data]
+        self.col_properties = data['Metadata']['ColumnProperties']
+
+        # Get column labels
+        self.colLabels = [c['Name'] for c in self.col_properties]
+
+        # Notify the grid
+        grid.BeginBatch()
+        msg = wx.grid.GridTableMessage(
+            self, wx.grid.GRIDTABLE_NOTIFY_COLS_APPENDED,
+            self.GetNumberCols())
+
+        grid.ProcessTableMessage(msg)
+        msg = wx.grid.GridTableMessage(
+            self, wx.grid.GRIDTABLE_NOTIFY_ROWS_APPENDED, self.GetNumberRows())
+
+        grid.ProcessTableMessage(msg)
+        grid.EndBatch()
+
+    def Save(self):
+        self.SaveAs(self.filename)
+
+    def SaveAs(self, filename):
+        self.filename = filename
+        write_dict = OrderedDict()
+        write_dict['Metadata'] = {'ColumnProperties': self.col_properties}
+        write_dict['Artifacts'] = self.file_data
+        with open(filename, 'w') as f:
+            f.write(safe_dump(write_dict, default_flow_style=False))
+
+    def GetNumberRows(self):
+        return len(self.data)
+
+    def GetNumberCols(self):
+        return len(self.colLabels)
+
+    def IsEmptyCell(self, row, col):
+        return not self.data[row][self.colLabels[col]]
+
+    def GetValue(self, row, col):
+        return self.data[row][self.colLabels[col]]
+
+    def SetValue(self, row, col, value):
+        self.data[row][self.colLabels[col]] = value
+
+    # Some optional methods
+
+    # Called when the grid needs to display column labels
+    def GetColLabelValue(self, col):
+        return self.colLabels[col]
+
+    # Called when the grid needs to display row labels
+    # def GetRowLabelValue(self, row):
+    #     return self.rowLabels[row]
+
+    # Methods added for demo purposes.
+
+    # The physical moving of the cols/rows is left to the implementer.
+    # Because of the dynamic nature of a wxGrid the physical moving of
+    # columns differs from implementation to implementation
+
+    # Move the column
+    def MoveColumn(self, frm, to):
+        grid = self.GetView()
+
+        if grid:
+            # Move the identifiers
+            old = self.colLabels[frm]
+            del self.colLabels[frm]
+
+            if to > frm:
+                self.colLabels.insert(to - 1, old)
+            else:
+                self.colLabels.insert(to, old)
+
+            # Notify the grid
+            grid.BeginBatch()
+            msg = wx.grid.GridTableMessage(
+                    self, wx.grid.GRIDTABLE_NOTIFY_COLS_DELETED, frm, 1
+                    )
+
+            grid.ProcessTableMessage(msg)
+
+            if to == self.GetNumberCols():
+                msg = wx.grid.GridTableMessage(
+                    self, wx.grid.GRIDTABLE_NOTIFY_COLS_APPENDED, 1)
+            else:
+                msg = wx.grid.GridTableMessage(
+                    self, wx.grid.GRIDTABLE_NOTIFY_COLS_INSERTED, to, 1)
+
+            grid.ProcessTableMessage(msg)
+            grid.EndBatch()
+
+    # Move the row
+    def MoveRow(self, frm, to):
+        grid = self.GetView()
+
+        if grid:
+            # Move the rowLabels and data rows
+            oldData = self.data[frm]
+            del self.data[frm]
+
+            if to > frm:
+                self.data.insert(to - 1, oldData)
+            else:
+                self.data.insert(to, oldData)
+
+            # Notify the grid
+            grid.BeginBatch()
+
+            msg = wx.grid.GridTableMessage(
+                    self, wx.grid.GRIDTABLE_NOTIFY_ROWS_DELETED, frm, 1)
+
+            grid.ProcessTableMessage(msg)
+
+            if to == self.GetNumberRows():
+                msg = wx.grid.GridTableMessage(
+                    self, wx.grid.GRIDTABLE_NOTIFY_ROWS_APPENDED, 1)
+            else:
+                msg = wx.grid.GridTableMessage(
+                    self, wx.grid.GRIDTABLE_NOTIFY_ROWS_INSERTED, to, 1)
+
+            grid.ProcessTableMessage(msg)
+            grid.EndBatch()
+
+    def InsertRow(self, row):
+        entry = {}
+        for name in self.colLabels:
+            entry[name] = ''
+        ind = self.file_data.index(self.data[row])
+        self.file_data.insert(ind, entry)
+        self.data.insert(row, self.file_data[ind])
+        grid = self.GetView()
+
+        if grid:
+            # Notify the grid
+            grid.BeginBatch()
+            msg = wx.grid.GridTableMessage(
+                self, wx.grid.GRIDTABLE_NOTIFY_ROWS_INSERTED, row, 1)
+            grid.ProcessTableMessage(msg)
+            grid.EndBatch()
+
+    def HideRows(self, rows):
+        for row in rows:
+            self.HideRow(row)
+
+    def HideRow(self, row):
+        grid = self.GetView()
+
+        if grid:
+            self.hidden_rows.append(
+                [self.file_data.index(self.data[row]), row])
+            del self.data[row]
+
+            # Notify the grid
+            grid.BeginBatch()
+            msg = wx.grid.GridTableMessage(
+                    self, wx.grid.GRIDTABLE_NOTIFY_ROWS_DELETED, row, 1)
+
+            grid.ProcessTableMessage(msg)
+            grid.EndBatch()
+
+    def DeleteRows(self, rows):
+        for row in rows:
+            self.DeleteRow(row)
+
+    def DeleteRow(self, row):
+        grid = self.GetView()
+
+        if grid:
+            ind = self.file_data.index(self.data[row])
+            del self.data[row]
+            del self.file_data[ind]
+
+            # Notify the grid
+            grid.BeginBatch()
+            msg = wx.grid.GridTableMessage(
+                    self, wx.grid.GRIDTABLE_NOTIFY_ROWS_DELETED, row, 1)
+
+            grid.ProcessTableMessage(msg)
+            grid.EndBatch()
+
+    def RenameCol(self, col, label):
+        current_label = self.colLabels[col]
+        self.colLabels[col] = label
+        for r in self.data:
+            if current_label in r:
+                r[label] = r.pop(current_label)
+        for r in self.file_data:
+            if current_label in r:
+                r[label] = r.pop(current_label)
+        grid = self.GetView()
+        if grid:
+            grid.BeginBatch()
+            msg = wx.grid.GridTableMessage(
+                    self, wx.grid.GRIDTABLE_NOTIFY_COLS_DELETED, col, 1
+                    )
+
+            grid.ProcessTableMessage(msg)
+
+            if col == self.GetNumberCols():
+                msg = wx.grid.GridTableMessage(
+                    self, wx.grid.GRIDTABLE_NOTIFY_COLS_APPENDED, 1)
+            else:
+                msg = wx.grid.GridTableMessage(
+                    self, wx.grid.GRIDTABLE_NOTIFY_COLS_INSERTED, col, 1)
+
+            grid.ProcessTableMessage(msg)
+            grid.EndBatch()
+
+    def InsertCol(self, col, label):
+        self.colLabels.insert(col, label)
+        for r in self.file_data:
+            r[label] = ''
+        grid = self.GetView()
+        if grid:
+            grid.BeginBatch()
+
+            if col == self.GetNumberCols():
+                msg = wx.grid.GridTableMessage(
+                    self, wx.grid.GRIDTABLE_NOTIFY_COLS_APPENDED, 1)
+            else:
+                msg = wx.grid.GridTableMessage(
+                    self, wx.grid.GRIDTABLE_NOTIFY_COLS_INSERTED, col, 1)
+
+            grid.ProcessTableMessage(msg)
+            grid.EndBatch()
+
+    def DeleteCols(self, cols):
+        for col in cols:
+            self.DeleteCol(col)
+
+    def DeleteCol(self, col):
+        label = self.colLabels[col]
+        self.HideCol(col)
+        for r in self.data:
+            if label in r:
+                del r[label]
+        for r in self.file_data:
+            if label in r:
+                del r[label]
+
+    def HideCols(self, cols):
+        for col in cols:
+            self.HideCol(col)
+
+    def HideCol(self, col):
+        grid = self.GetView()
+
+        if grid:
+            # Move the identifiers
+            self.hidden_cols.append([self.colLabels[col], col])
+            del self.colLabels[col]
+
+            # Notify the grid
+            grid.BeginBatch()
+            msg = wx.grid.GridTableMessage(
+                    self, wx.grid.GRIDTABLE_NOTIFY_COLS_DELETED, col, 1
+                    )
+
+            grid.ProcessTableMessage(msg)
+            grid.EndBatch()
+
+    def UnHideRows(self):
+        grid = self.GetView()
+        if grid:
+            for ind, row in reversed(self.hidden_rows):
+                if row == self.GetNumberRows():
+                    self.data.append(self.file_data[ind])
+                    msg = wx.grid.GridTableMessage(
+                        self, wx.grid.GRIDTABLE_NOTIFY_ROWS_APPENDED, 1)
+                else:
+                    self.data.insert(row, self.file_data[ind])
+                    msg = wx.grid.GridTableMessage(
+                        self, wx.grid.GRIDTABLE_NOTIFY_ROWS_INSERTED, row, 1)
+
+                grid.ProcessTableMessage(msg)
+                grid.EndBatch()
+            self.hidden_rows = []
+            self.filters = {}
+
+    def UnHideCols(self):
+        grid = self.GetView()
+        if grid:
+            # Un-Hide Columns
+            for label, col in reversed(self.hidden_cols):
+                if col == self.GetNumberCols():
+                    self.colLabels.append(label)
+                    msg = wx.grid.GridTableMessage(
+                        self, wx.grid.GRIDTABLE_NOTIFY_COLS_APPENDED, 1)
+                else:
+                    self.colLabels.insert(col, label)
+                    msg = wx.grid.GridTableMessage(
+                        self, wx.grid.GRIDTABLE_NOTIFY_COLS_INSERTED, col, 1)
+
+                grid.ProcessTableMessage(msg)
+                grid.EndBatch()
+            self.hidden_cols = []
+
+    def UnHideAll(self):
+        self.UnHideRows()
+        self.UnHideCols()
+
+    def ApplyFilters(self, col, filts):
+        for filt in filts:
+            self.ApplyFilter(col, filt)
+
+    def ApplyFilter(self, col, filt):
+        label = self.colLabels[col]
+        # Was filter already selected
+        if label in self.filters and filt in self.filters[label]:
+            filters = [f for f in self.filters[label] if f != filt]
+            self.RemoveFilterCol(col)
+            self.ApplyFilters(col, filters)
+        else:
+            if label in self.filters:
+                self.filters[label].append(filt)
+            else:
+                self.filters[label] = [filt]
+            filters = self.filters[label]
+            self.RemoveFilterCol(col)
+            self.filters[label] = filters
+            for i, r in reversed(list(enumerate(self.data))):
+                if r[self.colLabels[col]] not in self.filters[label]:
+                    self.HideRow(i)
+
+    def RemoveFilterCols(self, cols):
+        for col in cols:
+            self.RemoveFilterCol(col)
+
+    def RemoveFilterCol(self, col):
+        filters = self.filters.copy()
+        del filters[self.colLabels[col]]
+        self.UnHideRows()
+        for key, value in filters.iteritems():
+            self.ApplyFilter(self.colLabels.index(key), value)
+
+
+class DragableGrid(wx.grid.Grid):
+    def __init__(self, parent, log):
+        wx.grid.Grid.__init__(self, parent, -1)
+
+        table = CustomDataTable(log)
+
+        # The second parameter means that the grid is to take ownership of the
+        # table and will destroy it when done.  Otherwise you would need to
+        # keep a reference to it and call it's Destroy method later.
+        self.SetTable(table, True)
+
+        # Enable Column moving
+        gridmovers.GridColMover(self)
+        self.Bind(gridmovers.EVT_GRID_COL_MOVE, self.OnColMove, self)
+
+        # Enable Row moving
+        gridmovers.GridRowMover(self)
+        self.Bind(gridmovers.EVT_GRID_ROW_MOVE, self.OnRowMove, self)
+        self.Bind(wx.grid.EVT_GRID_LABEL_RIGHT_CLICK,
+                  self.OnLabelRightClick, self)
+
+    def OnLabelRightClick(self, evt):
+        row, col = evt.GetRow(), evt.GetCol()
+        if row == -1:
+            self.ColMenu(col, evt)
+        if col == -1:
+            self.RowMenu(row, evt)
+
+    def RowMenu(self, row, evt):
+        if not self.GetSelectedRows() or row not in self.GetSelectedRows():
+            self.SelectRow(row)
+
+        menu = wx.Menu()
+
+        if len(self.GetSelectedRows()) == 1:
+            insert = menu.Append(wx.ID_ANY, "Insert Row")
+            self.Bind(
+                wx.EVT_MENU, lambda event: self.GetTable().InsertRow(row),
+                insert)
+        delete = menu.Append(wx.ID_ANY, "Delete Row(s)")
+        hide = menu.Append(wx.ID_ANY, "Hide Row(s)")
+
+        self.Bind(wx.EVT_MENU, lambda event: self.GetTable().DeleteRows(
+            self.GetSelectedRows()), delete)
+        self.Bind(wx.EVT_MENU, lambda event: self.GetTable().HideRows(
+            self.GetSelectedRows()), hide)
+
+        self.PopupMenu(menu)
+        menu.Destroy()
+
+    def ColMenu(self, col, evt):
+        if not self.GetSelectedCols() or col not in self.GetSelectedCols():
+            self.SelectCol(col)
+        menu = wx.Menu()
+        if len(self.GetSelectedCols()) == 1:
+            rename = menu.Append(wx.ID_ANY, "Rename Column Header")
+            self.Bind(
+                wx.EVT_MENU, lambda event: self.RenameCol(col),
+                rename)
+            insert = menu.Append(wx.ID_ANY, "Insert Column")
+            self.Bind(
+                wx.EVT_MENU, lambda event: self.InsertCol(col),
+                insert)
+        delete = menu.Append(wx.ID_ANY, "Delete Column(s)")
+        hide = menu.Append(wx.ID_ANY, "Hide Column(s)")
+        no_filt = menu.Append(wx.ID_ANY, "Remove Filter")
+        if len(self.GetSelectedCols()) == 1:
+            label = self.GetTable().colLabels[col]
+            filters = self.GetTable().filters.get(label, [])
+            file_data = self.GetTable().file_data
+            unique = sorted(list(set(
+                [r[label] for r in file_data if r[label]])))
+            filt_menu = wx.Menu()
+            filt_map = {}
+            filt_list = []
+            for u in unique:
+                filt = filt_menu.Append(wx.ID_ANY, u, 'Filter by %s' % u,
+                                        wx.ITEM_CHECK)
+                if u in filters:
+                    filt.Check()
+                filt_list.append(filt.GetId())
+                filt_map[filt.GetId()] = u
+            self.Bind(wx.EVT_MENU_RANGE, lambda event:
+                      self.GetTable().ApplyFilter(
+                          col, filt_map[event.GetId()]), id=min(filt_list),
+                      id2=max(filt_list))
+            menu.AppendMenu(wx.ID_ANY, 'Filter', filt_menu)
+
+        self.Bind(wx.EVT_MENU, lambda event: self.GetTable().DeleteCols(
+            self.GetSelectedCols()), delete)
+        self.Bind(wx.EVT_MENU, lambda event: self.GetTable().HideCols(
+            self.GetSelectedCols()), hide)
+        self.Bind(wx.EVT_MENU, lambda event: self.GetTable().RemoveFilterCols(
+            self.GetSelectedCols()), no_filt)
+
+        self.PopupMenu(menu)
+        menu.Destroy()
+
+    # Event method called when a column move needs to take place
+    def OnColMove(self, evt):
+        frm = evt.GetMoveColumn()       # Column being moved
+        to = evt.GetBeforeColumn()      # Before which column to insert
+        self.GetTable().MoveColumn(frm, to)
+
+    # Event method called when a row move needs to take place
+    def OnRowMove(self, evt):
+        frm = evt.GetMoveRow()          # Row being moved
+        to = evt.GetBeforeRow()         # Before which row to insert
+        self.GetTable().MoveRow(frm, to)
+
+    def RenameCol(self, col):
+        label = self.GetTable().colLabels[col]
+        dlg = wx.TextEntryDialog(
+                self, 'New name for Column Title',
+                'Rename', 'More')
+        dlg.SetValue(label)
+        if dlg.ShowModal() == wx.ID_OK:
+            self.GetTable().RenameCol(col, dlg.GetValue())
+        dlg.Destroy()
+
+    def InsertCol(self, col):
+        dlg = wx.TextEntryDialog(
+                self, 'Name for new Column Title',
+                'New', 'More')
+        dlg.SetValue('NewTitle')
+        if dlg.ShowModal() == wx.ID_OK:
+            self.GetTable().InsertCol(col, dlg.GetValue())
+        dlg.Destroy()
+
+
+class MainFrame2(wx.Frame):
+    def __init__(self, parent, log):
+        wx.Frame.__init__(self, parent, -1,
+                          "AMT Lite",
+                          size=(640, 480))
+
+        self.grid = DragableGrid(self, log)
+
+        self.CreateStatusBar()
+        self.SetStatusText("Welcome to AMT-Lite")
+
+        # Prepare the menu bar
+        menuBar = wx.MenuBar()
+
+        # File
+        file_menu = wx.Menu()
+        load = file_menu.Append(
+            wx.ID_ANY, "&Load", "Load an artifacts file.")
+        save = file_menu.Append(
+            wx.ID_ANY, "&Save", "Save the current artifacts file.")
+        save_as = file_menu.Append(
+            wx.ID_ANY, "&Save as",
+            "Save the current artifacts to a specified file.")
+        file_menu.AppendSeparator()
+        close = file_menu.Append(wx.ID_ANY, "&Close", "Close this frame")
+        menuBar.Append(file_menu, "&File")
+
+        # View
+        view_menu = wx.Menu()
+
+        # View/Visibility
+        visibility_menu = wx.Menu()
+        unhide_cols = visibility_menu.Append(
+            wx.ID_ANY, "Un-Hide All Columns")
+        unhide_rows = visibility_menu.Append(
+            wx.ID_ANY, "Un-Hide All Rows")
+        unhide_all = visibility_menu.Append(
+            wx.ID_ANY, "Un-Hide All")
+        view_menu.AppendMenu(wx.ID_ANY, "Visibility", visibility_menu)
+        menuBar.Append(view_menu, "&View")
+
+        self.SetMenuBar(menuBar)
+
+        # Menu events
+        self.Bind(wx.EVT_MENU, self.Load, load)
+        self.Bind(wx.EVT_MENU, self.Save, save)
+        self.Bind(wx.EVT_MENU, self.SaveAs, save_as)
+        self.Bind(wx.EVT_MENU, self.CloseWindow, close)
+        self.Bind(wx.EVT_MENU, self.UnHideCols, unhide_cols)
+        self.Bind(wx.EVT_MENU, self.UnHideRows, unhide_rows)
+        self.Bind(wx.EVT_MENU, self.UnHideAll, unhide_all)
+
+    def UnHideCols(self, event):
+        self.grid.GetTable().UnHideCols()
+
+    def UnHideRows(self, event):
+        self.grid.GetTable().UnHideRows()
+
+    def UnHideAll(self, event):
+        self.grid.GetTable().UnHideAll()
+
+    def Load(self, event):
+        wildcard = "YAML File (*.yaml)|*.yaml|"     \
+                   "All files (*.*)|*.*"
+        dlg = wx.FileDialog(
+            self, message="Select Artifacts File",
+            defaultDir=os.getcwd(),
+            defaultFile="",
+            wildcard=wildcard,
+            style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
+            )
+
+        # Show the dialog and retrieve the user response. If it is the OK
+        # response, process the data.
+        if dlg.ShowModal() == wx.ID_OK:
+            self.grid.GetTable().Load(dlg.GetPath())
+            for i, c in enumerate(self.grid.GetTable().col_properties):
+                self.grid.SetColSize(i, c['Width'])
+            self.SetTitle(os.path.basename(dlg.GetPath()))
+
+        # Destroy the dialog. Don't do this until you are done with it!
+        # BAD things can happen otherwise!
+        dlg.Destroy()
+
+    def Save(self, event):
+        self.grid.GetTable().Save()
+
+    def SaveAs(self, event):
+        wildcard = "YAML File (*.yaml)|*.yaml|"     \
+                   "All files (*.*)|*.*"
+        dlg = wx.FileDialog(
+            self, message="Select Artifacts File",
+            defaultDir=os.getcwd(),
+            defaultFile="",
+            wildcard=wildcard,
+            style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT
+            )
+
+        # Show the dialog and retrieve the user response. If it is the OK
+        # response, process the data.
+        if dlg.ShowModal() == wx.ID_OK:
+            self.grid.GetTable().SaveAs(dlg.GetPath())
+
+        # Destroy the dialog. Don't do this until you are done with it!
+        # BAD things can happen otherwise!
+        dlg.Destroy()
+
+    def CloseWindow(self, event):
+        self.Close()
+
+
 class MainFrame(wx.Frame):
 
     def __init__(self, parent, id=wx.ID_ANY, title="", pos=wx.DefaultPosition,
