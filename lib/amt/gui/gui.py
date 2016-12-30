@@ -1576,9 +1576,6 @@ class MainFrame(wx.Frame):
         elif evId == ID_NotebookTabFloat:
             event.Check((self._notebook_style & aui.AUI_NB_TAB_FLOAT) != 0)
 
-        elif evId == ID_NotebookDclickUnsplit:
-            event.Check(self._main_notebook.GetSashDClickUnsplit())
-
         elif evId == ID_NotebookTabDrawDnd:
             event.Check((self._notebook_style & aui.AUI_NB_DRAW_DND_TAB) != 0)
 
