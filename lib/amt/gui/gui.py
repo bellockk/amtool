@@ -21,9 +21,6 @@ except ImportError:  # if it's not there locally, try the wxPython lib.
     import wx.lib.agw.aui as aui
     from wx.lib.agw.aui import aui_switcherdialog as ASD
 
-_ = wx.GetTranslation
-
-
 ID_CreateTree = wx.ID_HIGHEST + 1
 ID_CreateGrid = ID_CreateTree + 1
 ID_CreateText = ID_CreateTree + 2
@@ -522,7 +519,6 @@ class MainFrame(wx.Frame):
 
     def __init__(self, parent, id=wx.ID_ANY, title="", pos=wx.DefaultPosition,
                  size=(800, 600),
-                 # size=wx.DefaultSize,
                  style=wx.DEFAULT_FRAME_STYLE | wx.SUNKEN_BORDER, log=None):
 
         wx.Frame.__init__(self, parent, id, title, pos, size, style)
@@ -539,6 +535,7 @@ class MainFrame(wx.Frame):
         self._notebook_style = (aui.AUI_NB_DEFAULT_STYLE |
                                 aui.AUI_NB_TAB_EXTERNAL_MOVE | wx.NO_BORDER)
         self._notebook_theme = 0
+
         # Attributes
         self._textCount = 1
         self._transparency = 255
@@ -562,8 +559,24 @@ class MainFrame(wx.Frame):
         # create menu
         mb = wx.MenuBar()
 
+        # File Menu #
         file_menu = wx.Menu()
-        file_menu.Append(wx.ID_EXIT, "Exit")
+
+        # Load
+        load = file_menu.Append(wx.ID_ANY, "Load")
+        self.Bind(wx.EVT_MENU, self.OnLoad, load)
+
+        # Save
+        save = file_menu.Append(wx.ID_ANY, "Save")
+        self.Bind(wx.EVT_MENU, self.OnSave, save)
+
+        # Save As
+        save_as = file_menu.Append(wx.ID_ANY, "Save As")
+        self.Bind(wx.EVT_MENU, self.OnSaveAs, save_as)
+
+        # Exit
+        exit = file_menu.Append(wx.ID_ANY, "Exit")
+        self.Bind(wx.EVT_MENU, self.OnExit, exit)
 
         view_menu = wx.Menu()
         view_menu.Append(ID_CreateText, "Create Text Control")
@@ -783,66 +796,11 @@ class MainFrame(wx.Frame):
         # code. For now, just hard code a frame minimum size
         self.SetMinSize(wx.Size(400, 300))
 
-        # prepare a few custom overflow elements for the toolbars' overflow
-        # buttons
-
-        append_items = []
-        item = aui.AuiToolBarItem()
-
-        item.SetKind(wx.ITEM_SEPARATOR)
-        append_items.append(item)
-
-        item = aui.AuiToolBarItem()
-        item.SetKind(wx.ITEM_NORMAL)
-        item.SetId(ID_CustomizeToolbar)
-        item.SetLabel("Customize...")
-        append_items.append(item)
-
         # add a bunch of panes
-        self._mgr.AddPane(self.CreateSizeReportCtrl(), aui.AuiPaneInfo().
-                          Name("test1").Caption("Pane Caption").
-                          Top().MinimizeButton(True))
-
-        self._mgr.AddPane(self.CreateSizeReportCtrl(), aui.AuiPaneInfo().
-                          Name("test2").Caption("Client Size Reporter").
-                          Bottom().Position(1).CloseButton(True).
-                          MaximizeButton(True).MinimizeButton(True).
-                          CaptionVisible(True, left=True))
-
-        self._mgr.AddPane(self.CreateSizeReportCtrl(), aui.AuiPaneInfo().
-                          Name("test3").Caption("Client Size Reporter").
-                          Bottom().CloseButton(True).MaximizeButton(True).
-                          MinimizeButton(True).
-                          CaptionVisible(True, left=True))
-
-        self._mgr.AddPane(self.CreateSizeReportCtrl(), aui.AuiPaneInfo().
-                          Name("test4").Caption("Pane Caption").Left())
-
-        self._mgr.AddPane(self.CreateSizeReportCtrl(), aui.AuiPaneInfo().
-                          Name("test5").Caption("No Close Button").Right().
-                          CloseButton(False))
-
-        self._mgr.AddPane(self.CreateSizeReportCtrl(), aui.AuiPaneInfo().
-                          Name("test6").Caption("Client Size Reporter").
-                          Right().Row(1).CloseButton(True).
-                          MaximizeButton(True).MinimizeButton(True))
-
-        self._mgr.AddPane(self.CreateSizeReportCtrl(), aui.AuiPaneInfo().
-                          Name("test7").Caption("Client Size Reporter").
-                          Left().Layer(1).CloseButton(True).
-                          MaximizeButton(True).MinimizeButton(True))
-
         self._mgr.AddPane(self.CreateTreeCtrl(), aui.AuiPaneInfo().
-                          Name("test8").Caption("Tree Pane").
+                          Name("AMT-Tree").Caption("Artifacts").
                           Left().Layer(1).Position(1).CloseButton(True).
                           MaximizeButton(True).MinimizeButton(True))
-
-        self._mgr.AddPane(self.CreateSizeReportCtrl(), aui.AuiPaneInfo().
-                          Name("test9").Caption("Min Size 200x100").
-                          BestSize(wx.Size(200, 100)).
-                          MinSize(wx.Size(200, 100)).Bottom().Layer(1).
-                          CloseButton(True).MaximizeButton(True).
-                          MinimizeButton(True))
 
         self._mgr.AddPane(self.CreateTextCtrl(), aui.AuiPaneInfo().
                           Name("autonotebook").Caption("Console").
@@ -854,65 +812,9 @@ class MainFrame(wx.Frame):
 
         # create some center panes
 
-        self._mgr.AddPane(self.CreateGrid(),
-                          aui.AuiPaneInfo().Name("grid_content").
-                          CenterPane().Hide().MinimizeButton(True))
-
-        self._mgr.AddPane(self.CreateTreeCtrl(),
-                          aui.AuiPaneInfo().Name("tree_content").
-                          CenterPane().Hide().MinimizeButton(True))
-
-        self._mgr.AddPane(self.CreateSizeReportCtrl(),
-                          aui.AuiPaneInfo().Name("sizereport_content").
-                          CenterPane().Hide().MinimizeButton(True))
-
-        self._mgr.AddPane(self.CreateTextCtrl(),
-                          aui.AuiPaneInfo().Name("text_content").
-                          CenterPane().Hide().MinimizeButton(True))
-
         self._mgr.AddPane(self.CreateHTMLCtrl(),
                           aui.AuiPaneInfo().Name("html_content").
                           CenterPane().Hide().MinimizeButton(True))
-
-        self._mgr.AddPane(self.CreateNotebook(),
-                          aui.AuiPaneInfo().Name("notebook_content").
-                          CenterPane().PaneBorder(False))
-
-        # add the toolbars to the manager
-        self._mgr.AddPane(wx.Button(self, -1, "Test Button"),
-                          aui.AuiPaneInfo().Name("tb7").ToolbarPane(
-                          ).Top().Row(2).Position(1))
-
-        # make some default perspectives
-        perspective_all = self._mgr.SavePerspective()
-
-        all_panes = self._mgr.GetAllPanes()
-        for pane in all_panes:
-            if not pane.IsToolbar():
-                pane.Hide()
-
-        self._mgr.GetPane("tb1").Hide()
-        self._mgr.GetPane("tb7").Hide()
-
-        self._mgr.GetPane("test8").Show().Left().Layer(0).Row(0).Position(0)
-        self._mgr.GetPane("__notebook_%d" % self._mgr.GetPane(
-            "test10").notebook_id).Show().Bottom().Layer(0).Row(0).Position(0)
-        self._mgr.GetPane("autonotebook").Show()
-        self._mgr.GetPane("thirdauto").Show()
-        self._mgr.GetPane("test10").Show()
-        self._mgr.GetPane("notebook_content").Show()
-        perspective_default = self._mgr.SavePerspective()
-
-        self._perspectives = []
-        self._perspectives.append(perspective_default)
-        self._perspectives.append(perspective_all)
-
-        self._nb_perspectives = []
-        auibook = self._mgr.GetPane("notebook_content").window
-        nb_perspective_default = auibook.SavePerspective()
-        self._nb_perspectives.append(nb_perspective_default)
-
-        self._mgr.LoadPerspective(perspective_default)
 
         # "commit" all changes made to AuiManager
         self._mgr.Update()
@@ -1024,7 +926,6 @@ class MainFrame(wx.Frame):
         for ids in self._requestPanes:
             self.Bind(wx.EVT_MENU, self.OnRequestUserAttention, id=ids)
 
-        self.Bind(wx.EVT_MENU, self.OnExit, id=wx.ID_EXIT)
         self.Bind(wx.EVT_MENU, self.OnAbout, id=wx.ID_ABOUT)
 
         self.Bind(wx.EVT_MENU_RANGE, self.OnRestorePerspective,
@@ -1994,6 +1895,15 @@ class MainFrame(wx.Frame):
 
         self.log.write(strs + "\n")
 
+    def OnLoad(self, event):
+        pass
+
+    def OnSave(self, event):
+        pass
+
+    def OnSaveAs(self, event):
+        pass
+
     def OnExit(self, event):
         self.Close(True)
 
@@ -2109,9 +2019,11 @@ class MainFrame(wx.Frame):
 
         for k in xrange(2):
             if k == 0:
-                items.AddGroup(_("Main Windows"), "mainwindows")
+                items.AddGroup(wx.GetTranslation("Main Windows"),
+                               "mainwindows")
             else:
-                items.AddGroup(_("Toolbars"), "toolbars").BreakColumn()
+                items.AddGroup(wx.GetTranslation(
+                    "Toolbars"), "toolbars").BreakColumn()
 
             for pane in self._mgr.GetAllPanes():
                 name = pane.name
@@ -2129,7 +2041,8 @@ class MainFrame(wx.Frame):
                         pane.window)
 
         # Now add the wxAuiNotebook pages
-        items.AddGroup(_("Notebook Pages"), "pages").BreakColumn()
+        items.AddGroup(wx.GetTranslation(
+            "Notebook Pages"), "pages").BreakColumn()
 
         for pane in self._mgr.GetAllPanes():
             nb = pane.window
