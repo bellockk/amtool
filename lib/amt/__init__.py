@@ -1,4 +1,7 @@
 __all__ = []
+from load import *
+import load as _mod
+__all__.extend(_mod.__all__)
 from init import *
 import init as _mod
 __all__.extend(_mod.__all__)
