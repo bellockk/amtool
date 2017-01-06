@@ -23,13 +23,25 @@ sys.path.insert(0, LIB_PATH)
 from amt.file_io import safe_load
 
 
+def _d(d, l):
+    if l[0] not in d:
+        d[l[0]] = {}
+    if l[1:]:
+        return _d(d[l[0]], l[1:])
+    else:
+        return d[l[0]]
+
+
 def load(target, verbose=1):
     result = {}
     for root, directories, files in os.walk(target):
         for f in files:
             if f.lower().endswith('.yaml'):
                 base = [d for d in os.path.relpath(
-                    root, target).split(os.sep) if d != '.']
-                print base
-                print safe_load(os.path.join(root, f))
+                    root, target).split(os.sep) if d != '.'] + [
+                        os.path.splitext(f)[0]]
+                dictionary_to_update = _d(result, base)
+                f_obj = open(os.path.join(root, f), 'r')
+                dictionary_to_update.update(safe_load(f_obj.read()))
+                f_obj.close()
     return result

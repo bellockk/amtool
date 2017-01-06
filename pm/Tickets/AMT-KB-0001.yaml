@@ -1,0 +1,14 @@
+uid: AMT-KB-0001
+Description: Create user interface to edit and view tickets.
+Originator: Kenneth E. Bellock
+Assignee: Kenneth E. Bellock
+# Blocker, Critical, Major, Minor Trivial
+Priority: Major
+# Task, New Feature, Bug, Improvement
+Type: Task
+Fix Version: v1.0
+# Open, Resolved, Closed
+Status: Open
+Comments:
+  - Date: 201701061621
+    Comment:  First ticket opened on AMT!!

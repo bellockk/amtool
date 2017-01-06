@@ -15,16 +15,19 @@ from load import load
 
 class Test_AMT(unittest.TestCase):
     def test_load1(self):
-        load(os.path.join(DATA_PATH, 'test1'))
-        self.assertEqual(False, True, 'Files Only')
+        self.assertEqual({'test1': {'foo': 'bar'}},
+                         load(os.path.join(DATA_PATH, 'test1')),
+                         'File only')
 
     def test_load2(self):
-        load(os.path.join(DATA_PATH, 'test2'))
-        self.assertEqual(False, True, 'Directory with file')
+        self.assertEqual({'say': {'test1': {'foo': 'bar'}}},
+                         load(os.path.join(DATA_PATH, 'test2')),
+                         'Directory with file')
 
     def test_load3(self):
-        load(os.path.join(DATA_PATH, 'test3'))
-        self.assertEqual(False, True, 'Directory with Directory with file')
+        self.assertEqual({'you': {'say': {'test1': {'foo': 'bar'}}}},
+                         load(os.path.join(DATA_PATH, 'test3')),
+                         'Directory with Directory with file')
 
 
 if __name__ == '__main__':
