@@ -1,0 +1,3 @@
+uid: AMT-REQ-0001
+Name: AMT-REQ-0001
+Requirement: AMT object trees shall consist of directories and yaml files.
