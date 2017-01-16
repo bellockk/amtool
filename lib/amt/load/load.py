@@ -43,5 +43,6 @@ def load(target, verbose=1):
                 dictionary_to_update = _d(result, base)
                 f_obj = open(os.path.join(root, f), 'r')
                 dictionary_to_update.update(safe_load(f_obj.read()))
+                dictionary_to_update['__file__'] = f
                 f_obj.close()
     return result

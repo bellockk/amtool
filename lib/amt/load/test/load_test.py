@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import unittest
+import logging
 import os
 import sys
 
@@ -15,18 +16,26 @@ from load import load
 
 class Test_AMT(unittest.TestCase):
     def test_load1(self):
-        self.assertEqual({'test1': {'foo': 'bar'}},
-                         load(os.path.join(DATA_PATH, 'test1')),
-                         'File only')
+        expected = {'test1': {'__file__': 'test1.yaml', 'foo': 'bar'}}
+        actual = load(os.path.join(DATA_PATH, 'test1'))
+        logging.info('Expected: %s', str(expected))
+        logging.info('Actual: %s', str(actual))
+        self.assertEqual(expected, actual, 'File only')
 
     def test_load2(self):
-        self.assertEqual({'say': {'test1': {'foo': 'bar'}}},
-                         load(os.path.join(DATA_PATH, 'test2')),
-                         'Directory with file')
+        expected = {'say': {'test1': {'__file__': 'test1.yaml', 'foo': 'bar'}}}
+        actual = load(os.path.join(DATA_PATH, 'test2'))
+        logging.info('Expected: %s', str(expected))
+        logging.info('Actual: %s', str(actual))
+        self.assertEqual(expected, actual, 'Directory with File')
 
     def test_load3(self):
-        self.assertEqual({'you': {'say': {'test1': {'foo': 'bar'}}}},
-                         load(os.path.join(DATA_PATH, 'test3')),
+        expected = load(os.path.join(DATA_PATH, 'test3'))
+        actual = {'you': {'say': {'test1': {'__file__': 'test1.yaml',
+                                            'foo': 'bar'}}}}
+        logging.info('Expected: %s', str(expected))
+        logging.info('Actual: %s', str(actual))
+        self.assertEqual(expected, actual,
                          'Directory with Directory with file')
 
 
