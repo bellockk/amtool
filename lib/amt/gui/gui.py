@@ -21,6 +21,12 @@ except ImportError:  # if it's not there locally, try the wxPython lib.
     import wx.lib.agw.aui as aui
     from wx.lib.agw.aui import aui_switcherdialog as ASD
 
+SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
+LIB_PATH = os.path.join(SCRIPT_PATH, '..', '..')
+sys.path.insert(0, LIB_PATH)
+
+from amt.load import load
+
 ID_CreateTree = wx.ID_HIGHEST + 1
 ID_CreateGrid = ID_CreateTree + 1
 ID_CreateText = ID_CreateTree + 2
@@ -2517,27 +2523,43 @@ class MainFrame(wx.Frame):
                            wx.TR_DEFAULT_STYLE | wx.NO_BORDER)
 
         imglist = wx.ImageList(16, 16, True, 2)
-        imglist.Add(wx.ArtProvider.GetBitmap(
+        folder_image = imglist.Add(wx.ArtProvider.GetBitmap(
             wx.ART_FOLDER, wx.ART_OTHER, wx.Size(16, 16)))
-        imglist.Add(wx.ArtProvider.GetBitmap(
+        file_image = imglist.Add(wx.ArtProvider.GetBitmap(
             wx.ART_NORMAL_FILE, wx.ART_OTHER, wx.Size(16, 16)))
+        file_open = imglist.Add(wx.ArtProvider.GetBitmap(
+            wx.ART_FILE_OPEN, wx.ART_OTHER, wx.Size(16, 16)))
         tree.AssignImageList(imglist)
 
-        root = tree.AddRoot("AMT Project", 0)
-        items = []
+        def _addbranch(node, branch):
+            for key, value in branch.iteritems():
+                if isinstance(value, dict):
+                    if '__file__' in value:
+                        image = folder_image
+                    else:
+                        image = file_open
+                    sub_node = tree.AppendItem(node, key, image)
+                    _addbranch(sub_node, value)
 
-        items.append(tree.AppendItem(root, "Item 1", 0))
-        items.append(tree.AppendItem(root, "Item 2", 0))
-        items.append(tree.AppendItem(root, "Item 3", 0))
-        items.append(tree.AppendItem(root, "Item 4", 0))
-        items.append(tree.AppendItem(root, "Item 5", 0))
+        root = tree.AddRoot("Artifacts", folder_image)
+        artifacts = load('pm')
+        _addbranch(root, artifacts)
 
-        for item in items:
-            tree.AppendItem(item, "Subitem 1", 1)
-            tree.AppendItem(item, "Subitem 2", 1)
-            tree.AppendItem(item, "Subitem 3", 1)
-            tree.AppendItem(item, "Subitem 4", 1)
-            tree.AppendItem(item, "Subitem 5", 1)
+        # root = tree.AddRoot("AMT Project", folder_image)
+        # items = []
+
+        # items.append(tree.AppendItem(root, "Item 1", folder_image))
+        # items.append(tree.AppendItem(root, "Item 2", folder_image))
+        # items.append(tree.AppendItem(root, "Item 3", folder_image))
+        # items.append(tree.AppendItem(root, "Item 4", folder_image))
+        # items.append(tree.AppendItem(root, "Item 5", folder_image))
+
+        # for item in items:
+        #     tree.AppendItem(item, "Subitem 1", file_image)
+        #     tree.AppendItem(item, "Subitem 2", file_image)
+        #     tree.AppendItem(item, "Subitem 3", file_image)
+        #     tree.AppendItem(item, "Subitem 4", file_image)
+        #     tree.AppendItem(item, "Subitem 5", file_image)
 
         tree.Expand(root)
 
