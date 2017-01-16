@@ -1,4 +1,7 @@
 __all__ = []
+from canonical import *
+import canonical as _mod
+__all__.extend(_mod.__all__)
 from save import *
 import save as _mod
 __all__.extend(_mod.__all__)
