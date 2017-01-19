@@ -2533,6 +2533,8 @@ class MainFrame(wx.Frame):
 
         def _addbranch(node, branch):
             for key, value in branch.iteritems():
+                if key.startswith('_'):
+                    continue
                 if isinstance(value, dict):
                     if '__file__' in value:
                         image = folder_image
@@ -2540,6 +2542,11 @@ class MainFrame(wx.Frame):
                         image = file_open
                     sub_node = tree.AppendItem(node, key, image)
                     _addbranch(sub_node, value)
+                elif isinstance(value, list):
+                    pass
+                else:
+                    sub_node = tree.AppendItem(node, key, file_image)
+
 
         root = tree.AddRoot("Artifacts", folder_image)
         artifacts = load('pm')
