@@ -1385,16 +1385,13 @@ class MainFrame(wx.Frame):
         self._mgr.AddPane(self.CreateTextCtrl(), aui.AuiPaneInfo().
                           Name("autonotebook").Caption("Console").
                           Bottom().Layer(1).Position(1).MinimizeButton(True))
-
-        self._mgr.AddPane(SettingsPanel(self, self), aui.AuiPaneInfo().
-                          Name("settings").Caption("Dock Manager Settings").
-                          Dockable(False).Float().Hide().MinimizeButton(True))
-
         # create some center panes
-
         self._mgr.AddPane(self.CreateHTMLCtrl(),
                           aui.AuiPaneInfo().Name("html_content").
                           CenterPane().Hide().MinimizeButton(True))
+        self._mgr.AddPane(self.CreateNotebook(),
+                          aui.AuiPaneInfo().Name("notebook_content").
+                          CenterPane().PaneBorder(False))
 
         # "commit" all changes made to AuiManager
         self._mgr.Update()
@@ -2547,26 +2544,9 @@ class MainFrame(wx.Frame):
                 else:
                     sub_node = tree.AppendItem(node, key, file_image)
 
-
         root = tree.AddRoot("Artifacts", folder_image)
         artifacts = load('pm')
         _addbranch(root, artifacts)
-
-        # root = tree.AddRoot("AMT Project", folder_image)
-        # items = []
-
-        # items.append(tree.AppendItem(root, "Item 1", folder_image))
-        # items.append(tree.AppendItem(root, "Item 2", folder_image))
-        # items.append(tree.AppendItem(root, "Item 3", folder_image))
-        # items.append(tree.AppendItem(root, "Item 4", folder_image))
-        # items.append(tree.AppendItem(root, "Item 5", folder_image))
-
-        # for item in items:
-        #     tree.AppendItem(item, "Subitem 1", file_image)
-        #     tree.AppendItem(item, "Subitem 2", file_image)
-        #     tree.AppendItem(item, "Subitem 3", file_image)
-        #     tree.AppendItem(item, "Subitem 4", file_image)
-        #     tree.AppendItem(item, "Subitem 5", file_image)
 
         tree.Expand(root)
 
