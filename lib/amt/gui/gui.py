@@ -4,6 +4,7 @@ import random
 import wx
 import wx.html
 import wx.grid
+import wx.propgrid
 
 __all__ = ['gui']
 
@@ -1392,6 +1393,10 @@ class MainFrame(wx.Frame):
         self._mgr.AddPane(self.CreateNotebook(),
                           aui.AuiPaneInfo().Name("notebook_content").
                           CenterPane().PaneBorder(False))
+        self._mgr.AddPane(self.CreatePropertyGridCtrl(), aui.AuiPaneInfo().
+                          Name("Prop").Caption("Properties").
+                          Right().Layer(1).Position(1).CloseButton(True).
+                          MaximizeButton(True).MinimizeButton(True))
 
         # "commit" all changes made to AuiManager
         self._mgr.Update()
@@ -2551,6 +2556,17 @@ class MainFrame(wx.Frame):
         tree.Expand(root)
 
         return tree
+
+    def CreatePropertyGridCtrl(self):
+
+        property_grid = wx.propgrid.PropertyGridManager(
+            self, wx.ID_ANY, wx.Point(0, 0), wx.Size(160, 250), style=wx.propgrid.PG_SPLITTER_AUTO_CENTER |
+            wx.propgrid.PG_AUTO_SORT | wx.propgrid.PG_TOOLBAR)
+
+        property_grid.Append(wx.propgrid.PropertyCategory("Foo"))
+        property_grid.Append(wx.propgrid.FloatProperty("Bar", value=42.))
+
+        return property_grid
 
     def CreateHTMLCtrl(self, parent=None):
 
