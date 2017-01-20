@@ -32,17 +32,27 @@ def _d(d, l):
         return d[l[0]]
 
 
+def _load_file(result, filename, verbose=1):
+    f_obj = open(filename, 'r')
+    result.update(safe_load(f_obj.read()))
+    result['__file__'] = os.path.basename(filename)
+    f_obj.close()
+
+
 def load(target, verbose=1):
     result = {}
-    for root, directories, files in os.walk(target):
-        for f in files:
-            if f.lower().endswith('.yaml'):
-                base = [d for d in os.path.relpath(
-                    root, target).split(os.sep) if d != '.'] + [
-                        os.path.splitext(f)[0]]
-                dictionary_to_update = _d(result, base)
-                f_obj = open(os.path.join(root, f), 'r')
-                dictionary_to_update.update(safe_load(f_obj.read()))
-                dictionary_to_update['__file__'] = f
-                f_obj.close()
+    if os.path.isfile(target):
+        _load_file(result, target, verbose)
+    elif os.path.isdir(target):
+        for root, directories, files in os.walk(target):
+            for f in files:
+                if f.lower().endswith('.yaml'):
+                    base = [d for d in os.path.relpath(
+                        root, target).split(os.sep) if d != '.'] + [
+                            os.path.splitext(f)[0]]
+                    dictionary_to_update = _d(result, base)
+                    f_obj = open(os.path.join(root, f), 'r')
+                    dictionary_to_update.update(safe_load(f_obj.read()))
+                    _load_file(dictionary_to_update, os.path.join(
+                        root, f), verbose)
     return result

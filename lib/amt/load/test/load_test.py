@@ -15,6 +15,13 @@ from load import load
 
 
 class Test_AMT(unittest.TestCase):
+    def test_load0(self):
+        expected = {'__file__': 'test1.yaml', 'foo': 'bar'}
+        actual = load(os.path.join(DATA_PATH, 'test1', 'test1.yaml'))
+        logging.info('Expected: %s', str(expected))
+        logging.info('Actual: %s', str(actual))
+        self.assertEqual(expected, actual, 'File only')
+
     def test_load1(self):
         expected = {'test1': {'__file__': 'test1.yaml', 'foo': 'bar'}}
         actual = load(os.path.join(DATA_PATH, 'test1'))
