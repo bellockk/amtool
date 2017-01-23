@@ -41,7 +41,7 @@ import amt
 artifacts = amt.load('/path/to/artifacts')
 
 # Read
-AMT-OAR-001 = artifacts['Requirements']['AMT-OAR-0001']
+AMT_OAR_001 = artifacts['Requirements']['AMT-OAR-0001']
 
 # Modify
 artifacts['Requirements']['AMT-OAR-0002']['Description'] = 'Be Cool'
