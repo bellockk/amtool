@@ -23,6 +23,12 @@ AMT is meant to be a generic means of storing and manipulating artifact data in 
 * Software Lifecycle/Project Management Documentation Generation
 * Simulation Input Files
 
+### What problem does AMT try to solve.
+The ability to colaboratively develop artifacts when a central server or database cannot be utilized.
+
+#### Case Study: Distributed Issue Tracking
+Examples of a use case for which there is no existing workable solution, is the requirement to use an issue tracking system for a project that will be worked by groups on multiple networks, sites, locations, and/or classification levels, where access to a central database or server cannot be maintained by all developers, all the time.  There are several excellent issue tracking systems out there, Bugzilla, Trac, Jira, but all of those solutions require access to a centralized server to interact with the issue database.  AMT provides a user definable solution to create, manage, and version control an issue database, in human readable format, within the repository the project is stored in.
+
 ### Command line tools
 Command line tools are executed through subcommands of the amt command.
 
