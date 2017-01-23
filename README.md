@@ -22,3 +22,30 @@ AMT is meant to be a generic means of storing and manipulating artifact data in 
 * Object Models
 * Software Lifecycle/Project Management Documentation Generation
 * Simulation Input Files
+
+### Command line tools
+Command line tools are executed through subcommands of the amt command.
+
+| Command    | Usage                                                              |
+|:----------:|:-------------------------------------------------------------------|
+| gui        | Invokes the graphical user interface to the amt tool.              |
+| add        | Adds a new object to the current object tree.                      |
+| dump       | Dumps an ascii representation of the object tree.                  |
+| cannonical | Enforces the canonical representation of the object tree.          |
+
+### Example Python Usage
+```python
+import amt
+
+# Load
+artifacts = amt.load('/path/to/artifacts')
+
+# Read
+AMT-OAR-001 = artifacts['Requirements']['AMT-OAR-0001']
+
+# Modify
+artifacts['Requirements']['AMT-OAR-0002']['Description'] = 'Be Cool'
+
+# Write
+amt.save('/path/to/write/artifacts', artifacts)
+```
