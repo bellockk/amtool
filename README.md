@@ -16,8 +16,8 @@ AMT is meant to be a generic means of storing and manipulating artifact data in 
 * Specialized for any task other than the storage and manipulation of artifacts.
 
 ### Intended Use Cases:
-* Issue Tracking System
-* Requirements Management
+* Distributed Issue Tracking System
+* Colaborative Requirements Management
 * Use Case Documentation
 * Object Models
 * Software Lifecycle/Project Management Documentation Generation
