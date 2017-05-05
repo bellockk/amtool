@@ -38,6 +38,7 @@ def _d(pth, data, verbose=1):
             del write_data['__file__']
             f_obj = open(os.path.join(pth, value['__file__']), 'w')
             f_obj.write(safe_dump(write_data, default_flow_style=False))
+            f_obj.close()
 
 
 def _d2(dcmp):
@@ -62,8 +63,19 @@ def _d2(dcmp):
             _d2(value)
 
 
-def save(pth, data, verbose=1):
-    tmp = tempfile.mkdtemp()
-    _d(tmp, data, verbose)
-    _d2(dircmp(pth, tmp))
-    shutil.rmtree(tmp)
+def save(pth, data, header=None, footer=None, verbose=1):
+    if pth.lower().endswith('.yaml'):
+        write_data = data.copy()
+        # TODO: Recursively remove all instances of '__file__'
+        f_obj = open(pth, 'w')
+        if header:
+            f_obj.write(header)
+        f_obj.write(safe_dump(write_data, default_flow_style=False))
+        if footer:
+            f_obj.write(footer)
+        f_obj.close()
+    else:
+        tmp = tempfile.mkdtemp()
+        _d(tmp, data, verbose)
+        _d2(dircmp(pth, tmp))
+        shutil.rmtree(tmp)

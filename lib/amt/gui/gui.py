@@ -1151,8 +1151,10 @@ class MainFrame(wx.Frame):
         save = file_menu.Append(wx.ID_ANY, "Save")
         self.Bind(wx.EVT_MENU, self.OnSave, save)
 
-        # Save As
-        save_as = file_menu.Append(wx.ID_ANY, "Save As")
+        # Export
+        file_menu.AppendSeparator()
+        save_as = file_menu.Append(wx.ID_ANY, "Export")
+        file_menu.AppendSeparator()
         self.Bind(wx.EVT_MENU, self.OnSaveAs, save_as)
 
         # Exit

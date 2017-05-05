@@ -35,7 +35,7 @@ def _d(d, l):
 def _load_file(result, filename, verbose=1):
     f_obj = open(filename, 'r')
     result.update(safe_load(f_obj.read()))
-    result['__file__'] = os.path.basename(filename)
+    result['__file__'] = filename
     f_obj.close()
 
 
@@ -51,8 +51,6 @@ def load(target, verbose=1):
                         root, target).split(os.sep) if d != '.'] + [
                             os.path.splitext(f)[0]]
                     dictionary_to_update = _d(result, base)
-                    f_obj = open(os.path.join(root, f), 'r')
-                    dictionary_to_update.update(safe_load(f_obj.read()))
                     _load_file(dictionary_to_update, os.path.join(
                         root, f), verbose)
     return result
