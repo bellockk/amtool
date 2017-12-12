@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # encoding: utf-8
 """
-amt -- Artifact Management Tool.
+amt-canonical -- Artifact Management Tool canonical tool.
 
 amt is a Tool for managing software artifacts
 
@@ -17,7 +17,6 @@ It defines classes_and_methods and a command line interface
 
 import sys
 import os
-import re
 
 from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
@@ -28,6 +27,7 @@ LIB_PATH = os.path.join(
         SCRIPT_PATH))), 'lib')
 
 sys.path.insert(0, LIB_PATH)
+from amt import canonical
 from amt import CLIError
 
 __all__ = []
@@ -35,12 +35,9 @@ __version__ = '0.0.1'
 __date__ = '2013-11-13'
 __updated__ = '2013-11-13'
 
-DEBUG = 1
+DEBUG = 0
 TESTRUN = 0
 PROFILE = 0
-
-SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
-ROOT_PATH = os.path.dirname(SCRIPT_PATH)
 
 
 def main(argv=None):  # IGNORE:C0111
@@ -69,90 +66,63 @@ USAGE
 ''' % (program_shortdesc, str(__date__))
 
     try:
-
         # Setup argument parser
         parser = ArgumentParser(description=program_license,
                                 epilog=program_epilog,
                                 formatter_class=RawDescriptionHelpFormatter)
 
-        # Add parsing options
-        _fill_parser(parser, program_version_message=program_version_message)
-
-        # Create subparsers for each tool
-        commands = [d[len('amt-'):] for d in os.listdir(ROOT_PATH) if
-                    d.startswith('amt-')]
-        # Note: The metavar being set to an empty string removes the redundant
-        # listing of subcommands.
-        subparsers = parser.add_subparsers(title='commands', metavar='', dest='tool')
-        tools= {}
-        for cmd in commands:
-            tools[cmd] = {}
-            tools[cmd]['Namespace'] = {'__file__':  __file__}
-            execfile(os.path.join(ROOT_PATH,
-                                  'amt-%s' % cmd,
-                                  'amt-%s.py' % cmd), tools[cmd]['Namespace'])
-            sp = subparsers.add_parser(cmd, help=tools[cmd]['Namespace']['__doc__'].split('\n')[1].split(' -- ')[1])
-            tools[cmd]['Parser'] = sp
-            tools[cmd]['Namespace']['_fill_parser'](sp)
+        # Add command line arguments
+        _fill_parser(parser,
+                     program_version_message=program_version_message)
 
         # Process arguments
         args = parser.parse_args()
 
-        tools[args.tool]['Namespace']['_apply_args'](args)
+        # Apply arguments
+        return _apply_args(args)
 
-        verbose = args.verbose
-
-        if verbose > 0:
-            print("Verbose mode on")
-
-        return 0
     except KeyboardInterrupt:
         ### handle keyboard interrupt ###
         return 0
     except Exception, e:
         if DEBUG or TESTRUN:
-            raise
+            raise(e)
         indent = len(program_name) * " "
         sys.stderr.write(program_name + ": " + repr(e) + "\n")
         sys.stderr.write(indent + "  for help use --help")
         return 2
 
 
+def _apply_args(args):
+    """Utilize parsed arguments."""
+    verbose = args.verbose
+
+    if verbose > 0:
+
+        print("Verbose mode on")
+
+    if not os.path.exists('.amt'):
+        # print('Not within an AMT managed folder')
+        # return 1
+        pass
+    return canonical(args.PATH)
+
+
 def _fill_parser(parser, **kw):
-    """Fill a command line parser."""
+    """Fill parser with commands."""
+    parser.add_argument("PATH", help="target")
     parser.add_argument("-v",
                         "--verbose",
                         dest="verbose",
                         action="count",
                         default=0,
                         help="set verbosity level [default: %(default)s]")
-    parser.add_argument('-V',
-                        '--version',
-                        action='version',
-                        version=kw['program_version_message'])
+    if 'program_version_message' in kw:
+        parser.add_argument('-V',
+                            '--version',
+                            action='version',
+                            version=kw['program_version_message'])
 
-
-def _replacemany(adict, astring, prefix='<', suffix='>'):
-    """
-    Replace keys within a string using the given dictionary of key:value pairs.
-
-    Parameters
-    ----------
-    adict : dictionary
-        Dictionary of replace key - replace value pairs.
-    astring : string
-        String to perform the replacement on.
-
-    Returns
-    -------
-    result : string
-        Input string with replacements performed.
-
-    """
-    re_obj = re.compile('|'.join(re.escape(
-        '%s%s%s' % (prefix, s, suffix)) for s in adict))
-    return re_obj.sub(lambda m: str(
-        adict[m.group()[len(prefix):len(m.group()) - len(suffix)]]), astring)
 
 if __name__ == "__main__":
     if DEBUG:
