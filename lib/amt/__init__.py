@@ -1,23 +1,23 @@
 __all__ = []
-from canonical import *
-import canonical as _mod
+from . import canonical as _mod
 __all__.extend(_mod.__all__)
-from save import *
-import save as _mod
+from .canonical import *
+from . import save as _mod
 __all__.extend(_mod.__all__)
-from load import *
-import load as _mod
+from .save import *
+from . import load as _mod
 __all__.extend(_mod.__all__)
-from init import *
-import init as _mod
+from .load import *
+from . import init as _mod
 __all__.extend(_mod.__all__)
-from add import *
-import add as _mod
+from .init import *
+from . import add as _mod
 __all__.extend(_mod.__all__)
-from gui import *
-import gui as _mod
+from .add import *
+from . import gui as _mod
 __all__.extend(_mod.__all__)
-from cli import *
-import cli as _mod
+from .gui import *
+from . import cli as _mod
 __all__.extend(_mod.__all__)
+from .cli import *
 del(_mod)

@@ -14,13 +14,10 @@ It defines classes_and_methods and a command line interface
 """
 import os
 import sys
+import yaml
 
 __all__ = ['load']
 SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
-LIB_PATH = os.path.join(SCRIPT_PATH, '..', '..')
-sys.path.insert(0, LIB_PATH)
-
-from amt.file_io import safe_load
 
 
 def _d(d, l):
@@ -34,7 +31,7 @@ def _d(d, l):
 
 def _load_file(result, filename, verbose=1):
     f_obj = open(filename, 'r')
-    result.update(safe_load(f_obj.read()))
+    result.update(yaml.load(f_obj.read()))
     result['__file__'] = filename
     f_obj.close()
 

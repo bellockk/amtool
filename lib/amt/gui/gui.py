@@ -343,8 +343,8 @@ class SettingsPanel(wx.Panel):
     def CreateColourBitmap(self, c):
 
         image = wx.EmptyImage(25, 14)
-        for x in xrange(25):
-            for y in xrange(14):
+        for x in range(25):
+            for y in range(14):
                 pixcol = c
                 if x == 0 or x == 24 or y == 0 or y == 13:
                     pixcol = wx.BLACK
@@ -851,7 +851,7 @@ class CustomDataTable(wx.grid.PyGridTableBase):
         filters = self.filters.copy()
         del filters[self.colLabels[col]]
         self.UnHideRows()
-        for key, value in filters.iteritems():
+        for key, value in filters.items():
             self.ApplyFilter(self.colLabels.index(key), value)
 
 
@@ -2536,7 +2536,7 @@ class MainFrame(wx.Frame):
         tree.AssignImageList(imglist)
 
         def _addbranch(node, branch):
-            for key, value in branch.iteritems():
+            for key, value in branch.items():
                 if key.startswith('_'):
                     continue
                 if isinstance(value, dict):
@@ -2609,7 +2609,7 @@ class MainFrame(wx.Frame):
         # Add the main windows and toolbars, in two separate columns We'll use
         # the item 'id' to store the notebook selection, or -1 if not a page
 
-        for k in xrange(2):
+        for k in range(2):
             if k == 0:
                 items.AddGroup(wx.GetTranslation("Main Windows"),
                                "mainwindows")
@@ -2639,7 +2639,7 @@ class MainFrame(wx.Frame):
         for pane in self._mgr.GetAllPanes():
             nb = pane.window
             if isinstance(nb, aui.AuiNotebook):
-                for j in xrange(nb.GetPageCount()):
+                for j in range(nb.GetPageCount()):
 
                     name = nb.GetPageText(j)
                     win = nb.GetPage(j)

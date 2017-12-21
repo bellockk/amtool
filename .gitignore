@@ -6,3 +6,5 @@ dist
 config.log
 .ropeproject
 /amt
+/tmp
+/local

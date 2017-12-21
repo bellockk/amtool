@@ -88,9 +88,11 @@ USAGE
         for cmd in commands:
             tools[cmd] = {}
             tools[cmd]['Namespace'] = {'__file__':  __file__}
-            execfile(os.path.join(ROOT_PATH,
+            exec(compile(open(os.path.join(ROOT_PATH,
                                   'amt-%s' % cmd,
-                                  'amt-%s.py' % cmd), tools[cmd]['Namespace'])
+                                  'amt-%s.py' % cmd)).read(), os.path.join(ROOT_PATH,
+                                  'amt-%s' % cmd,
+                                  'amt-%s.py' % cmd), 'exec'), tools[cmd]['Namespace'])
             sp = subparsers.add_parser(cmd, help=tools[cmd]['Namespace']['__doc__'].split('\n')[1].split(' -- ')[1])
             tools[cmd]['Parser'] = sp
             tools[cmd]['Namespace']['_fill_parser'](sp)
@@ -109,7 +111,7 @@ USAGE
     except KeyboardInterrupt:
         ### handle keyboard interrupt ###
         return 0
-    except Exception, e:
+    except Exception as e:
         if DEBUG or TESTRUN:
             raise
         indent = len(program_name) * " "

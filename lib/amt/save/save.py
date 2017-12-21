@@ -17,17 +17,13 @@ import sys
 import tempfile
 import shutil
 from filecmp import dircmp
+import yaml
 
 __all__ = ['save']
-SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
-LIB_PATH = os.path.join(SCRIPT_PATH, '..', '..')
-sys.path.insert(0, LIB_PATH)
-
-from amt.file_io import safe_dump
 
 
 def _d(pth, data, verbose=1):
-    for key, value in data.iteritems():
+    for key, value in data.items():
         if '__file__' not in value:
             newpth = os.path.join(pth, key)
             if not os.path.isdir(newpth):
@@ -37,7 +33,7 @@ def _d(pth, data, verbose=1):
             write_data = value.copy()
             del write_data['__file__']
             f_obj = open(os.path.join(pth, value['__file__']), 'w')
-            f_obj.write(safe_dump(write_data, default_flow_style=False))
+            f_obj.write(yaml.dump(write_data, default_flow_style=False))
             f_obj.close()
 
 
@@ -59,7 +55,7 @@ def _d2(dcmp):
         elif os.path.isdir(f):
             shutil.copytree(os.path.join(dcmp.right, fname),
                             os.path.join(dcmp.left, fname))
-    for key, value in dcmp.subdirs.iteritems():
+    for key, value in dcmp.subdirs.items():
             _d2(value)
 
 
@@ -70,7 +66,7 @@ def save(pth, data, header=None, footer=None, verbose=1):
         f_obj = open(pth, 'w')
         if header:
             f_obj.write(header)
-        f_obj.write(safe_dump(write_data, default_flow_style=False))
+        f_obj.write(yaml.dump(write_data, default_flow_style=False))
         if footer:
             f_obj.write(footer)
         f_obj.close()

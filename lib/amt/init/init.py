@@ -29,5 +29,5 @@ def init(verbose=1):
         action = 'Initialized empty'
     os.makedirs('.amt')
     if verbose > 0:
-        print('%s AMT project in %s' % (action, os.path.abspath('.amt')))
+        print(('%s AMT project in %s' % (action, os.path.abspath('.amt'))))
     return 0
