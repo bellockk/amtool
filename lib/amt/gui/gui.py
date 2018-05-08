@@ -5,6 +5,12 @@ import wx
 import wx.html
 import wx.grid
 import wx.propgrid
+try:
+    from agw import aui
+    from agw.aui import aui_switcherdialog as ASD
+except ImportError:  # if it's not there locally, try the wxPython lib.
+    import wx.lib.agw.aui as aui
+    from wx.lib.agw.aui import aui_switcherdialog as ASD
 
 __all__ = ['gui']
 
@@ -15,12 +21,6 @@ except:
 
 sys.path.append(os.path.split(dirName)[0])
 
-try:
-    from agw import aui
-    from agw.aui import aui_switcherdialog as ASD
-except ImportError:  # if it's not there locally, try the wxPython lib.
-    import wx.lib.agw.aui as aui
-    from wx.lib.agw.aui import aui_switcherdialog as ASD
 
 SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
 LIB_PATH = os.path.join(SCRIPT_PATH, '..', '..')
@@ -29,9 +29,6 @@ sys.path.insert(0, LIB_PATH)
 from amt.load import load
 
 ID_CreateTree = wx.ID_HIGHEST + 1
-ID_CreateGrid = ID_CreateTree + 1
-ID_CreateText = ID_CreateTree + 2
-ID_CreateHTML = ID_CreateTree + 3
 ID_CreateNotebook = ID_CreateTree + 4
 ID_CreateSizeReport = ID_CreateTree + 5
 ID_GridContent = ID_CreateTree + 6
@@ -1137,7 +1134,7 @@ class MainFrame(wx.Frame):
 
     def CreateMenuBar(self):
 
-        # create menu
+        # Create Menu
         mb = wx.MenuBar()
 
         # File Menu #
@@ -1161,11 +1158,25 @@ class MainFrame(wx.Frame):
         exit = file_menu.Append(wx.ID_ANY, "Exit")
         self.Bind(wx.EVT_MENU, self.OnExit, exit)
 
+        # View Menu #
         view_menu = wx.Menu()
-        view_menu.Append(ID_CreateText, "Create Text Control")
-        view_menu.Append(ID_CreateHTML, "Create HTML Control")
-        view_menu.Append(ID_CreateTree, "Create Tree")
-        view_menu.Append(ID_CreateGrid, "Create Grid")
+
+        # Create Text Control
+        create_text = view_menu.Append(wx.ID_ANY, "Create Text Control")
+        self.Bind(wx.EVT_MENU, self.OnCreateText, create_text)
+
+        # Create HTML
+        create_html = view_menu.Append(wx.ID_ANY, "Create HTML Control")
+        self.Bind(wx.EVT_MENU, self.OnCreateHTML, create_html)
+
+        # Create Tree
+        create_tree = view_menu.Append(wx.ID_ANY, "Create Tree")
+        self.Bind(wx.EVT_MENU, self.OnCreateTree, create_tree)
+
+        # Create Grid
+        create_grid = view_menu.Append(wx.ID_ANY, "Create Grid")
+        self.Bind(wx.EVT_MENU, self.OnCreateGrid, create_grid)
+
         view_menu.Append(ID_CreateNotebook, "Create Notebook")
         view_menu.Append(ID_CreateSizeReport, "Create Size Reporter")
         view_menu.AppendSeparator()
@@ -1182,7 +1193,9 @@ class MainFrame(wx.Frame):
                          "Use a Size Reporter for the Content Pane")
         view_menu.AppendSeparator()
 
+        # Options Menu #
         options_menu = wx.Menu()
+
         options_menu.AppendRadioItem(ID_TransparentHint, "Transparent Hint")
         options_menu.AppendRadioItem(
             ID_VenetianBlindsHint, "Venetian Blinds Hint")
@@ -1303,6 +1316,7 @@ class MainFrame(wx.Frame):
         notebook_menu.Append(
             ID_NotebookPreview, "Preview Of All Notebook Pages")
 
+        # Perspectives Menu
         perspectives_menu = wx.Menu()
 
         self._perspectives_menu = wx.Menu()
@@ -1324,6 +1338,7 @@ class MainFrame(wx.Frame):
         self._nb_perspectives_menu.Append(
             ID_FirstNBPerspective + 0, "Default Startup")
 
+        # Guides Menu #
         guides_menu = wx.Menu()
         guides_menu.AppendRadioItem(
             ID_StandardGuides, "Standard Docking Guides")
@@ -1332,18 +1347,21 @@ class MainFrame(wx.Frame):
         guides_menu.AppendRadioItem(
             ID_WhidbeyGuides, "Whidbey-Style Docking Guides")
 
-        perspectives_menu.AppendMenu(
+        # Perspectives Menu #
+        perspectives_menu.Append(
             wx.ID_ANY, "Frame Perspectives", self._perspectives_menu)
-        perspectives_menu.AppendMenu(
+        perspectives_menu.Append(
             wx.ID_ANY, "AuiNotebook Perspectives", self._nb_perspectives_menu)
         perspectives_menu.AppendSeparator()
-        perspectives_menu.AppendMenu(wx.ID_ANY, "Docking Guides", guides_menu)
+        perspectives_menu.Append(wx.ID_ANY, "Docking Guides", guides_menu)
 
+        # Action Menu
         action_menu = wx.Menu()
         action_menu.AppendCheckItem(ID_VetoTree, "Veto Floating Of Tree Pane")
         action_menu.AppendCheckItem(ID_VetoText, "Veto Docking Of Fixed Pane")
         action_menu.AppendSeparator()
 
+        # Attention Menu #
         attention_menu = wx.Menu()
 
         self._requestPanes = {}
@@ -1356,9 +1374,10 @@ class MainFrame(wx.Frame):
             self._requestPanes[ids] = pane.name
             attention_menu.Append(ids, pane.caption)
 
-        action_menu.AppendMenu(
+        action_menu.Append(
             wx.ID_ANY, "Request User Attention For", attention_menu)
 
+        # Help Menu #
         help_menu = wx.Menu()
         help_menu.Append(wx.ID_ABOUT, "About...")
 
@@ -1407,10 +1426,6 @@ class MainFrame(wx.Frame):
 
         self.Bind(wx.EVT_ERASE_BACKGROUND, self.OnEraseBackground)
         self.Bind(wx.EVT_SIZE, self.OnSize)
-        self.Bind(wx.EVT_MENU, self.OnCreateTree, id=ID_CreateTree)
-        self.Bind(wx.EVT_MENU, self.OnCreateGrid, id=ID_CreateGrid)
-        self.Bind(wx.EVT_MENU, self.OnCreateText, id=ID_CreateText)
-        self.Bind(wx.EVT_MENU, self.OnCreateHTML, id=ID_CreateHTML)
         self.Bind(wx.EVT_MENU, self.OnCreateSizeReport, id=ID_CreateSizeReport)
         self.Bind(wx.EVT_MENU, self.OnCreateNotebook, id=ID_CreateNotebook)
         self.Bind(wx.EVT_MENU, self.OnCreatePerspective,
@@ -2339,19 +2354,19 @@ class MainFrame(wx.Frame):
             bmp = wx.ArtProvider.GetBitmap(
                 wx.ART_QUESTION, wx.ART_OTHER, wx.Size(16, 16))
 
-            m1 = wx.MenuItem(menuPopup, 10001, "Drop Down Item 1")
+            m1 = wx.MenuItem(menuPopup, wx.ID_ANY, "Drop Down Item 1")
             m1.SetBitmap(bmp)
             menuPopup.AppendItem(m1)
 
-            m2 = wx.MenuItem(menuPopup, 10002, "Drop Down Item 2")
+            m2 = wx.MenuItem(menuPopup, wx.ID_ANY, "Drop Down Item 2")
             m2.SetBitmap(bmp)
             menuPopup.AppendItem(m2)
 
-            m3 = wx.MenuItem(menuPopup, 10003, "Drop Down Item 3")
+            m3 = wx.MenuItem(menuPopup, wx.ID_ANY, "Drop Down Item 3")
             m3.SetBitmap(bmp)
             menuPopup.AppendItem(m3)
 
-            m4 = wx.MenuItem(menuPopup, 10004, "Drop Down Item 4")
+            m4 = wx.MenuItem(menuPopup, wx.ID_ANY, "Drop Down Item 4")
             m4.SetBitmap(bmp)
             menuPopup.AppendItem(m4)
 
