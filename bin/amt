@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# PYTHONCOM=$(which python)
+PYTHONCOM=$(which python3)
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PYTHONCOM="${DIR}/../local/bin/python3"
 
 ${PYTHONCOM} ${DIR}/../libexec/amt-core/amt/amt.py "$@"

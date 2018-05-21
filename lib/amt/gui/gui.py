@@ -29,15 +29,12 @@ sys.path.insert(0, LIB_PATH)
 from amt.load import load
 
 ID_CreateTree = wx.ID_HIGHEST + 1
-ID_CreateNotebook = ID_CreateTree + 4
-ID_CreateSizeReport = ID_CreateTree + 5
 ID_GridContent = ID_CreateTree + 6
 ID_TextContent = ID_CreateTree + 7
 ID_TreeContent = ID_CreateTree + 8
 ID_HTMLContent = ID_CreateTree + 9
 ID_NotebookContent = ID_CreateTree + 10
 ID_SizeReportContent = ID_CreateTree + 11
-ID_SwitchPane = ID_CreateTree + 12
 ID_CreatePerspective = ID_CreateTree + 13
 ID_CopyPerspectiveCode = ID_CreateTree + 14
 ID_CreateNBPerspective = ID_CreateTree + 15
@@ -1094,7 +1091,6 @@ class MainFrame2(wx.Frame):
 
 
 class MainFrame(wx.Frame):
-
     def __init__(self, parent, id=wx.ID_ANY, title="", pos=wx.DefaultPosition,
                  size=(800, 600),
                  style=wx.DEFAULT_FRAME_STYLE | wx.SUNKEN_BORDER, log=None):
@@ -1177,9 +1173,17 @@ class MainFrame(wx.Frame):
         create_grid = view_menu.Append(wx.ID_ANY, "Create Grid")
         self.Bind(wx.EVT_MENU, self.OnCreateGrid, create_grid)
 
-        view_menu.Append(ID_CreateNotebook, "Create Notebook")
-        view_menu.Append(ID_CreateSizeReport, "Create Size Reporter")
+        # Create Notebook
+        create_notebook = view_menu.Append(wx.ID_ANY, "Create Notebook")
+        self.Bind(wx.EVT_MENU, self.OnCreateNotebook, create_notebook)
+
+        # Create Size Report
+        create_sizereport = view_menu.Append(wx.ID_ANY, "Create Size Reporter")
+        self.Bind(wx.EVT_MENU, self.OnCreateSizeReport, create_sizereport)
+
+        # Separator
         view_menu.AppendSeparator()
+
         view_menu.Append(ID_GridContent, "Use a Grid for the Content Pane")
         view_menu.Append(ID_TextContent,
                          "Use a Text Control for the Content Pane")
@@ -1320,8 +1324,10 @@ class MainFrame(wx.Frame):
         perspectives_menu = wx.Menu()
 
         self._perspectives_menu = wx.Menu()
-        self._perspectives_menu.Append(
-            ID_CreatePerspective, "Create Perspective")
+        create_perspective = self._perspectives_menu.Append(
+            wx.ID_ANY, "Create Perspective")
+        self.Bind(wx.EVT_MENU, self.OnCreatePerspective,
+                  create_perspective)
         self._perspectives_menu.Append(
             ID_CopyPerspectiveCode, "Copy Perspective Data To Clipboard")
         self._perspectives_menu.AppendSeparator()
@@ -1426,10 +1432,6 @@ class MainFrame(wx.Frame):
 
         self.Bind(wx.EVT_ERASE_BACKGROUND, self.OnEraseBackground)
         self.Bind(wx.EVT_SIZE, self.OnSize)
-        self.Bind(wx.EVT_MENU, self.OnCreateSizeReport, id=ID_CreateSizeReport)
-        self.Bind(wx.EVT_MENU, self.OnCreateNotebook, id=ID_CreateNotebook)
-        self.Bind(wx.EVT_MENU, self.OnCreatePerspective,
-                  id=ID_CreatePerspective)
         self.Bind(wx.EVT_MENU, self.OnCopyPerspectiveCode,
                   id=ID_CopyPerspectiveCode)
         self.Bind(wx.EVT_MENU, self.OnCreateNBPerspective,
@@ -2704,7 +2706,6 @@ class MainFrame(wx.Frame):
                     nb.SetSelection(item.GetId())
                     win.SetFocus()
 
-
 def GetIntroText():
 
     text = (
@@ -2715,7 +2716,6 @@ def GetIntroText():
         "</body></html>")
 
     return text
-
 
 def gui():
     app = wx.App()

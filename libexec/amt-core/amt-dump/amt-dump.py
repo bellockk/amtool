@@ -1,5 +1,5 @@
 """
-amt-gui -- user interface
+amt-dump -- dump database to stdout
 
 amt is a Tool for managing software artifacts
 
@@ -11,13 +11,15 @@ amt is a Tool for managing software artifacts
 """
 import sys
 import os
+import logging
+import yaml
 SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
 LIB_PATH = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(
         SCRIPT_PATH))), 'lib')
 sys.path.insert(0, LIB_PATH)
+from amt import load
 from amt import CLIError
-from amt import gui
 from amt import _main
 
 __version__ = '0.0.1'
@@ -33,15 +35,20 @@ def _apply_args(args):
     verbose = args.verbose
 
     if verbose > 0:
+
         print("Verbose mode on")
 
-    gui()
-
-    return 0
+    if not os.path.exists('.amt'):
+        # print('Not within an AMT managed folder')
+        # return 1
+        pass
+    sys.stdout.write(yaml.dump(load(args.PATH), default_flow_style=False))
+    return True
 
 
 def _fill_parser(parser, **kw):
     """Fill parser with commands."""
+    parser.add_argument("PATH", default='.', nargs='?', help="target")
     parser.add_argument("-v",
                         "--verbose",
                         dest="verbose",

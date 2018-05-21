@@ -1,11 +1,7 @@
-#!/usr/bin/python
-# encoding: utf-8
 """
 amt -- Artifact Management Tool.
 
 amt is a Tool for managing software artifacts
-
-It defines classes_and_methods and a command line interface
 
 @author:     Kenneth E. Bellock
 
@@ -14,11 +10,8 @@ It defines classes_and_methods and a command line interface
 @contact:    ken@bellock.net
 
 """
-
 import sys
 import os
-import re
-
 from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
 
@@ -29,13 +22,14 @@ LIB_PATH = os.path.join(
 
 sys.path.insert(0, LIB_PATH)
 from amt import CLIError
+from amt import _main
 
 __all__ = []
 __version__ = '0.0.1'
 __date__ = '2013-11-13'
 __updated__ = '2013-11-13'
 
-DEBUG = 1
+DEBUG = 0
 TESTRUN = 0
 PROFILE = 0
 
@@ -83,17 +77,21 @@ USAGE
                     d.startswith('amt-')]
         # Note: The metavar being set to an empty string removes the redundant
         # listing of subcommands.
-        subparsers = parser.add_subparsers(title='commands', metavar='', dest='tool')
-        tools= {}
-        for cmd in commands:
+        subparsers = parser.add_subparsers(title='commands', metavar='',
+                                           dest='tool')
+        tools = {}
+        for cmd in sorted(commands):
             tools[cmd] = {}
             tools[cmd]['Namespace'] = {'__file__':  __file__}
-            exec(compile(open(os.path.join(ROOT_PATH,
-                                  'amt-%s' % cmd,
-                                  'amt-%s.py' % cmd)).read(), os.path.join(ROOT_PATH,
-                                  'amt-%s' % cmd,
-                                  'amt-%s.py' % cmd), 'exec'), tools[cmd]['Namespace'])
-            sp = subparsers.add_parser(cmd, help=tools[cmd]['Namespace']['__doc__'].split('\n')[1].split(' -- ')[1])
+            exec(compile(open(os.path.join(
+                ROOT_PATH,
+                'amt-%s' % cmd,
+                'amt-%s.py' % cmd)).read(), os.path.join(
+                    ROOT_PATH,
+                    'amt-%s' % cmd,
+                    'amt-%s.py' % cmd), 'exec'), tools[cmd]['Namespace'])
+            sp = subparsers.add_parser(cmd, help=tools[cmd][
+                'Namespace']['__doc__'].split('\n')[1].split(' -- ')[1])
             tools[cmd]['Parser'] = sp
             tools[cmd]['Namespace']['_fill_parser'](sp)
 
@@ -109,7 +107,6 @@ USAGE
 
         return 0
     except KeyboardInterrupt:
-        ### handle keyboard interrupt ###
         return 0
     except Exception as e:
         if DEBUG or TESTRUN:
@@ -134,43 +131,5 @@ def _fill_parser(parser, **kw):
                         version=kw['program_version_message'])
 
 
-def _replacemany(adict, astring, prefix='<', suffix='>'):
-    """
-    Replace keys within a string using the given dictionary of key:value pairs.
-
-    Parameters
-    ----------
-    adict : dictionary
-        Dictionary of replace key - replace value pairs.
-    astring : string
-        String to perform the replacement on.
-
-    Returns
-    -------
-    result : string
-        Input string with replacements performed.
-
-    """
-    re_obj = re.compile('|'.join(re.escape(
-        '%s%s%s' % (prefix, s, suffix)) for s in adict))
-    return re_obj.sub(lambda m: str(
-        adict[m.group()[len(prefix):len(m.group()) - len(suffix)]]), astring)
-
 if __name__ == "__main__":
-    if DEBUG:
-        sys.argv.append("-v")
-    if TESTRUN:
-        import doctest
-        doctest.testmod()
-    if PROFILE:
-        import cProfile
-        import pstats
-        profile_filename = 'filltemplates_profile.txt'
-        cProfile.run('main()', profile_filename)
-        statsfile = open("profile_stats.txt", "wb")
-        p = pstats.Stats(profile_filename, stream=statsfile)
-        stats = p.strip_dirs().sort_stats('cumulative')
-        stats.print_stats()
-        statsfile.close()
-        sys.exit(0)
-    sys.exit(main())
+    _main(debug=DEBUG, testrun=TESTRUN, profile=PROFILE, main=main)
