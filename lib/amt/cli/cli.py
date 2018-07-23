@@ -107,4 +107,4 @@ def _main(*args, **kwargs):
     if 'main' in kwargs and kwargs['main']:
         sys.exit(kwargs['main']())
     else:
-        sys.exit(_startup(*args, *kwargs))
+        sys.exit(_startup(*args, **kwargs))

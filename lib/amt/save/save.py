@@ -62,7 +62,6 @@ def _d2(dcmp):
 def save(pth, data, header=None, footer=None, verbose=1):
     if pth.lower().endswith('.yaml'):
         write_data = data.copy()
-        # TODO: Recursively remove all instances of '__file__'
         f_obj = open(pth, 'w')
         if header:
             f_obj.write(header)
