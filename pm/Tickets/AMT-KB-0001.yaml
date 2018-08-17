@@ -1,5 +1,8 @@
 id: AMT-KB-0001
-Description: Create user interface to edit and view tickets.
+Name: Create user interface to edit and view tickets
+Description: A user interface is needed to edit, sort, and view tickets.
+Closure Criteria: Availability of a user interface that can edit, sort and view tickets.
+Supporting Requirement: ''
 Originator: Kenneth E. Bellock
 Assignee: Kenneth E. Bellock
 # Blocker, Critical, Major, Minor Trivial
