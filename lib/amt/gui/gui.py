@@ -17,6 +17,8 @@ except:
 sys.path.append(os.path.split(dirName)[0])
 
 from amt.load import load
+sys.path.insert(0, dirName)
+import images
 
 
 class wxLogHandler(logging.Handler):
