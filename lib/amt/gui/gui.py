@@ -19,6 +19,7 @@ sys.path.append(os.path.split(dirName)[0])
 from amt.load import load
 sys.path.insert(0, dirName)
 import images
+from custom_status_bar import CustomStatusBar
 
 
 class wxLogHandler(logging.Handler):
@@ -83,19 +84,19 @@ class MainFrame(wx.Frame):
         self.image_list = wx.ImageList(16, 16, True, 2)
         self.folder_image = self.image_list.Add(wx.ArtProvider.GetBitmap(
             wx.ART_FOLDER, wx.ART_OTHER, wx.Size(16, 16)))
-        self.file_list_image = self.image_list.Add(wx.ArtProvider.GetBitmap(
-            wx.ART_NORMAL_FILE, wx.ART_OTHER, wx.Size(16, 16)))
+        self.file_list_image = self.image_list.Add(
+            images.square_brackets.Image.Scale(16,16).ConvertToBitmap())
         self.file_dictionary_image = self.image_list.Add(
-            wx.ArtProvider.GetBitmap(
-                wx.ART_FILE_OPEN, wx.ART_OTHER, wx.Size(16, 16)))
+            images.curly_brackets.Image.Scale(16,16).ConvertToBitmap())
         self.list_image = self.image_list.Add(wx.ArtProvider.GetBitmap(
             wx.ART_LIST_VIEW, wx.ART_OTHER, wx.Size(16, 16)))
         self.dictionary_image = self.image_list.Add(wx.ArtProvider.GetBitmap(
             wx.ART_REPORT_VIEW, wx.ART_OTHER, wx.Size(16, 16)))
         self.record_image = self.image_list.Add(wx.ArtProvider.GetBitmap(
             wx.ART_EXECUTABLE_FILE, wx.ART_OTHER, wx.Size(16, 16)))
-        self.tree = self.CreateTreeCtrl()
-
+        self.tree = wx.TreeCtrl(self, -1, wx.Point(0, 0), wx.Size(160, 250),
+                           wx.TR_DEFAULT_STYLE | wx.NO_BORDER)
+        self.tree.AssignImageList(self.image_list)
         text2 = wx.TextCtrl(self, -1, '',
                             wx.DefaultPosition, wx.Size(200, 150),
                             wx.NO_BORDER | wx.TE_MULTILINE | wx.TE_READONLY |
@@ -114,7 +115,14 @@ class MainFrame(wx.Frame):
         # tell the manager to 'commit' all the changes just made
         self._mgr.Update()
 
-        self.Bind(wx.EVT_CLOSE, self.OnClose)
+        # Create Status Bar
+        self.status_bar = CustomStatusBar(self)
+        self.SetStatusBar(self.status_bar)
+        self.status_bar.SetStatusText("Welcome to AMT")
+
+        self.content_not_saved = False
+
+        self.Bind(wx.EVT_CLOSE, self.OnQuit)
         self.Bind(wxLogHandler.EVT_WX_LOG_EVENT, self.onLogEvent)
 
     def InitUI(self):
@@ -124,24 +132,33 @@ class MainFrame(wx.Frame):
         fileMenu = wx.Menu()
         new_button = fileMenu.Append(
             wx.ID_NEW, '&New\tCtrl+N', 'Create a new session')
-        open_button = fileMenu.Append(
-            wx.ID_OPEN, '&Open\tCtrl+O', 'Open a new location')
-        save_button = fileMenu.Append(
+        open_file_button = fileMenu.Append(
+            wx.ID_ANY, 'Open &File\tCtrl+F', 'Open a file')
+        open_directory_button = fileMenu.Append(
+            wx.ID_ANY, 'Open &Directory\tCtrl+D', 'Open a directory')
+        self.save_button = fileMenu.Append(
             wx.ID_SAVE, '&Save\tCtrl+S', 'Save to current location')
-        save_as_button = fileMenu.Append(
+        self.save_button.Enable(False)
+        self.save_as_button = fileMenu.Append(
             wx.ID_SAVEAS, 'Save &As\tCtrl+A', 'Save to a new location')
+        self.save_as_button.Enable(False)
 
         fileMenu.AppendSeparator()
 
+        self.close_button = fileMenu.Append(wx.ID_CLOSE, "&Close\tCtrl+C",
+                                            "Close current")
+        self.close_button.Enable(False)
         quit_button = fileMenu.Append(
             wx.ID_EXIT, '&Quit\tCtrl+Q', 'Exit the application')
 
         # Bind Events
         self.Bind(wx.EVT_MENU, self.OnNew, new_button)
-        self.Bind(wx.EVT_MENU, self.OnOpen, open_button)
-        self.Bind(wx.EVT_MENU, self.OnSave, save_button)
-        self.Bind(wx.EVT_MENU, self.OnSaveAs, save_as_button)
-        self.Bind(wx.EVT_MENU, self.OnClose, quit_button)
+        self.Bind(wx.EVT_MENU, self.OnOpenFile, open_file_button)
+        self.Bind(wx.EVT_MENU, self.OnOpenDirectory, open_directory_button)
+        self.Bind(wx.EVT_MENU, self.OnSave, self.save_button)
+        self.Bind(wx.EVT_MENU, self.OnSaveAs, self.save_as_button)
+        self.Bind(wx.EVT_MENU, self.OnClose, self.close_button)
+        self.Bind(wx.EVT_MENU, self.OnQuit, quit_button)
 
         menubar.Append(fileMenu, '&File')
         self.SetMenuBar(menubar)
@@ -149,20 +166,31 @@ class MainFrame(wx.Frame):
     def OnNew(self, e):
         LOGGER.info("New")
 
-    def OnOpen(self, e):
-        LOGGER.info("Open")
+    def OnOpenFile(self, e):
+        LOGGER.info("Open File")
+        if self.content_not_saved:
+            if wx.MessageBox("Save current session?", "Please confirm",
+                             wx.ICON_QUESTION | wx.YES_NO, self) == wx.NO:
+                return
 
-    def OnSave(self, e):
-        LOGGER.info("Save")
+        # otherwise ask the user what new file to open
+        with wx.FileDialog(
+                self, "Open Artifacts file",
+                wildcard="AMT files (*.yaml)|*.yaml",
+                style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
 
-    def OnSaveAs(self, e):
-        LOGGER.info("Save As")
+            if fileDialog.ShowModal() == wx.ID_CANCEL:
+                return     # the user changed their mind
 
-    def CreateTreeCtrl(self):
+            # Proceed loading the file chosen by the user
+            pathname = fileDialog.GetPath()
+            try:
+                logging.info("Load file: %s", pathname)
+            except IOError:
+                wx.LogError("Cannot open file '%s'." % pathname)
 
-        tree = wx.TreeCtrl(self, -1, wx.Point(0, 0), wx.Size(160, 250),
-                           wx.TR_DEFAULT_STYLE | wx.NO_BORDER)
-        tree.AssignImageList(self.image_list)
+    def OnOpenDirectory(self, e):
+        LOGGER.info("Open Directory")
 
         def _addbranch(node, branch):
             for key, value in branch.items():
@@ -175,20 +203,25 @@ class MainFrame(wx.Frame):
                         image = self.file_list_image
                     else:
                         image = self.folder_image
-                    sub_node = tree.AppendItem(node, key, image)
+                    sub_node = self.tree.AppendItem(node, key, image)
                     _addbranch(sub_node, value)
                 elif isinstance(value, (tuple, list, set)):
-                    sub_node = tree.AppendItem(node, key, self.list_image)
+                    sub_node = self.tree.AppendItem(node, key, self.list_image)
                     # for item in value:
                     #     _addbranch(sub_node, value)
                 else:
-                    sub_node = tree.AppendItem(node, key, self.record_image)
+                    sub_node = self.tree.AppendItem(node, key, self.record_image)
         artifacts = 'pm'
-        root = tree.AddRoot(os.path.basename(artifacts), self.folder_image)
+        root = self.tree.AddRoot(os.path.basename(artifacts), self.folder_image)
         artifacts = load(artifacts)
         _addbranch(root, artifacts)
-        tree.Expand(root)
-        return tree
+        self.tree.Expand(root)
+
+    def OnSave(self, e):
+        LOGGER.info("Save")
+
+    def OnSaveAs(self, e):
+        LOGGER.info("Save As")
 
     def onLogEvent(self, event):
         msg = event.message.strip("\r") + "\n"
@@ -196,6 +229,9 @@ class MainFrame(wx.Frame):
         event.Skip()
 
     def OnClose(self, event):
+        LOGGER.info("Close")
+
+    def OnQuit(self, event):
         # deinitialize the frame manager
         self._mgr.UnInit()
 
