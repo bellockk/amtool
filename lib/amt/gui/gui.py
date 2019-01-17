@@ -191,6 +191,25 @@ class MainFrame(wx.Frame):
 
     def OnOpenDirectory(self, e):
         LOGGER.info("Open Directory")
+        if self.content_not_saved:
+            if wx.MessageBox("Save current session?", "Please confirm",
+                             wx.ICON_QUESTION | wx.YES_NO, self) == wx.NO:
+                return
+        # otherwise ask the user what new file to open
+        with wx.DirDialog(
+                self, "Open Artifacts Directory",
+                "AMT Directory",
+                style=wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST) as dirDialog:
+
+            if dirDialog.ShowModal() == wx.ID_CANCEL:
+                return     # the user changed their mind
+
+            # Proceed loading the file chosen by the user
+            pathname = dirDialog.GetPath()
+            try:
+                logging.info("Load directory: %s", pathname)
+            except IOError:
+                wx.LogError("Cannot open file '%s'." % pathname)
 
         def _addbranch(node, branch):
             for key, value in branch.items():
@@ -210,11 +229,10 @@ class MainFrame(wx.Frame):
                     # for item in value:
                     #     _addbranch(sub_node, value)
                 else:
-                    sub_node = self.tree.AppendItem(node, key, self.record_image)
-        artifacts = 'pm'
-        root = self.tree.AddRoot(os.path.basename(artifacts), self.folder_image)
-        artifacts = load(artifacts)
-        _addbranch(root, artifacts)
+                    sub_node = self.tree.AppendItem(
+                        node, key, self.record_image)
+        root = self.tree.AddRoot(os.path.basename(pathname), self.folder_image)
+        _addbranch(root, load(pathname))
         self.tree.Expand(root)
 
     def OnSave(self, e):
