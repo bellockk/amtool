@@ -208,7 +208,6 @@ class MainFrame(wx.Frame):
         LOGGER.info("New")
 
     def OnOpenFile(self, e):
-        __ffdoesnotexist()
         LOGGER.info("Open File")
         if self.content_not_saved:
             if wx.MessageBox("Save current session?", "Please confirm",
