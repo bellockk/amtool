@@ -1,5 +1,6 @@
 import os
 import sys
+import traceback
 import wx
 import wx.aui
 import wx.lib.newevent
@@ -20,6 +21,22 @@ from amt.load import load
 sys.path.insert(0, dirName)
 import images
 from custom_status_bar import CustomStatusBar
+
+
+def MyExceptionHook(etype, value, trace):
+    """
+    Handler for all unhandled exceptions.
+
+    :param `etype`: the exception type (`SyntaxError`, `ZeroDivisionError`,
+                    etc...);
+    :type `etype`: `Exception`
+    :param string `value`: the exception error message;
+    :param string `trace`: the traceback header, if any (otherwise, it prints
+    the standard Python header: ``Traceback (most recent call last)``.
+    """
+    tmp = traceback.format_exception(etype, value, trace)
+    exception = "".join(tmp)
+    logging.error(exception)
 
 
 class wxLogHandler(logging.Handler):
@@ -64,6 +81,9 @@ class MainFrame(wx.Frame):
                  style=wx.DEFAULT_FRAME_STYLE):
 
         wx.Frame.__init__(self, parent, id, title, pos, size, style)
+
+        # Install Error Hook
+        sys.excepthook = MyExceptionHook
 
         # Create a logger for this class
         self.log = logging.getLogger(self.__class__.__name__)
@@ -163,10 +183,32 @@ class MainFrame(wx.Frame):
         menubar.Append(fileMenu, '&File')
         self.SetMenuBar(menubar)
 
+    def decorate_tree(self, node, branch):
+        for key, value in branch.items():
+            if key.startswith('_'):
+                continue
+            if isinstance(value, dict):
+                if '__file__' in value:
+                    # TODO: switch between file_list_image and
+                    # file_dictionary_image
+                    image = self.file_list_image
+                else:
+                    image = self.folder_image
+                sub_node = self.tree.AppendItem(node, key, image)
+                self.decorate_tree(sub_node, value)
+            elif isinstance(value, (tuple, list, set)):
+                sub_node = self.tree.AppendItem(node, key, self.list_image)
+                # for item in value:
+                #     self.decorate_tree(sub_node, value)
+            else:
+                sub_node = self.tree.AppendItem(
+                    node, key, self.record_image)
+
     def OnNew(self, e):
         LOGGER.info("New")
 
     def OnOpenFile(self, e):
+        __ffdoesnotexist()
         LOGGER.info("Open File")
         if self.content_not_saved:
             if wx.MessageBox("Save current session?", "Please confirm",
@@ -188,6 +230,11 @@ class MainFrame(wx.Frame):
                 logging.info("Load file: %s", pathname)
             except IOError:
                 wx.LogError("Cannot open file '%s'." % pathname)
+        self.tree.DeleteAllItems()
+        root = self.tree.AddRoot(os.path.basename(os.path.splitext(
+            pathname)[0]), self.file_list_image)
+        self.decorate_tree(root, load(pathname))
+        self.tree.Expand(root)
 
     def OnOpenDirectory(self, e):
         LOGGER.info("Open Directory")
@@ -210,30 +257,11 @@ class MainFrame(wx.Frame):
                 logging.info("Load directory: %s", pathname)
             except IOError:
                 wx.LogError("Cannot open file '%s'." % pathname)
-
-        def _addbranch(node, branch):
-            for key, value in branch.items():
-                if key.startswith('_'):
-                    continue
-                if isinstance(value, dict):
-                    if '__file__' in value:
-                        # TODO: switch between file_list_image and
-                        # file_dictionary_image
-                        image = self.file_list_image
-                    else:
-                        image = self.folder_image
-                    sub_node = self.tree.AppendItem(node, key, image)
-                    _addbranch(sub_node, value)
-                elif isinstance(value, (tuple, list, set)):
-                    sub_node = self.tree.AppendItem(node, key, self.list_image)
-                    # for item in value:
-                    #     _addbranch(sub_node, value)
-                else:
-                    sub_node = self.tree.AppendItem(
-                        node, key, self.record_image)
+        self.tree.DeleteAllItems()
         root = self.tree.AddRoot(os.path.basename(pathname), self.folder_image)
-        _addbranch(root, load(pathname))
+        self.decorate_tree(root, load(pathname))
         self.tree.Expand(root)
+
 
     def OnSave(self, e):
         LOGGER.info("Save")
