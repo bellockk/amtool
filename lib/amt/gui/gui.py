@@ -90,7 +90,7 @@ class MainFrame(wx.Frame):
         self.log.setLevel(logging.DEBUG)
         handler = wxLogHandler(self)
         handler.setFormatter(logging.Formatter(
-            "%(asctime)s %(name)-12s %(levelname)-8s %(message)s"))
+            "[%(asctime)s][%(name)-12s][%(levelname)-8s] %(message)s"))
         # self.log.addHandler(handler)
         logger = logging.getLogger()
         logger.addHandler(handler)
