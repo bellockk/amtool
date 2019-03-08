@@ -19,13 +19,15 @@ LIB_PATH = os.path.join(
         SCRIPT_PATH))), 'lib')
 sys.path.insert(0, LIB_PATH)
 from amt import load
+from amt import MetaDict
+from amt import MetaList
 from amt import CLIError
 from amt import _main
 
 __version__ = '0.0.1'
 __date__ = '2013-11-13'
 __updated__ = '2013-11-13'
-DEBUG = 0
+DEBUG = 1
 TESTRUN = 0
 PROFILE = 0
 
@@ -42,6 +44,12 @@ def _apply_args(args):
         # print('Not within an AMT managed folder')
         # return 1
         pass
+    yaml.add_representer(MetaDict,
+                         lambda dumper, data: dumper.represent_mapping(
+                             'tag:yaml.org,2002:map', data.items()))
+    yaml.add_representer(MetaList,
+                         lambda dumper, data: dumper.represent_sequence(
+                             'tag:yaml.org,2002:seq', data))
     sys.stdout.write(yaml.dump(load(args.PATH), default_flow_style=False))
     return True
 

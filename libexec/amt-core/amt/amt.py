@@ -29,7 +29,7 @@ __version__ = '0.0.1'
 __date__ = '2013-11-13'
 __updated__ = '2013-11-13'
 
-DEBUG = 0
+DEBUG = 1
 TESTRUN = 0
 PROFILE = 0
 
