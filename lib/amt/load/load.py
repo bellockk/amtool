@@ -13,28 +13,15 @@ It defines classes_and_methods and a command line interface
 
 """
 import os
+import sys
 import yaml
 import logging
 
-__all__ = ['load', 'MetaDict', 'MetaList']
+__all__ = ['load']
 SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
-
-
-def _d(d, l):
-    if l[0] not in d:
-        d[l[0]] = {}
-    if l[1:]:
-        return _d(d[l[0]], l[1:])
-    else:
-        return d[l[0]]
-
-
-class MetaDict(dict):
-    pass
-
-
-class MetaList(list):
-    pass
+sys.path.insert(0, os.path.join(os.path.dirname(SCRIPT_PATH), 'meta'))
+from meta import MetaDict
+from meta import MetaList
 
 
 def _load_file(filename):
@@ -68,13 +55,14 @@ def _load_file(filename):
         return metadict
 
 
-def load(target, verbose=1):
+def load(target, toplevel=True, verbose=1):
     """
     Load a directory or file containing artifacts.
 
     The `target` can be a directory or file, and can contain plain yaml, or
-    canonicalized artifact data.  If a directory is specified, it will be walked
-    recursively and all files will be loaded into the return data structure.
+    canonicalized artifact data.  If a directory is specified, it will be
+    walked recursively and all files will be loaded into the return data
+    structure.
 
     Args:
         target (str): The directory or file to be loaded.
@@ -87,18 +75,17 @@ def load(target, verbose=1):
         loaded target.
     """
     logging.debug('Loading Target: %s', target)
+    basename = os.path.basename(target)
     if os.path.isfile(target):
-        result = _load_file(target)
+        if toplevel:
+            return _load_file(target)
+        else:
+            return {os.path.splitext(basename)[0]: _load_file(target)}
     elif os.path.isdir(target):
-        for root, directories, files in os.walk(target):
-            for f in files:
-                if f.lower().endswith('.yaml'):
-                    base = [d for d in os.path.relpath(
-                        root, target).split(os.sep) if d != '.'] + [
-                            os.path.splitext(f)[0]]
-                    print('Result: %s' % result)
-                    print('Base: %s' % base)
-                    dictionary_to_update = _d(result, base)
-                    _load_file(dictionary_to_update, os.path.join(
-                        root, f), verbose)
-    return result
+        result = {}
+        for path in os.listdir(target):
+            result.update(load(os.path.join(target, path), toplevel=False))
+        if toplevel:
+            return result
+        else:
+            return {basename: result}

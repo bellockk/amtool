@@ -19,22 +19,30 @@ import shutil
 from filecmp import dircmp
 import yaml
 
+SCRIPT_PATH = os.path.abspath(os.path.dirname(__file__))
+sys.path.insert(0, os.path.join(os.path.dirname(SCRIPT_PATH), 'meta'))
+from meta import MetaDict
+from meta import MetaList
+yaml.add_representer(MetaDict,
+                     lambda dumper, data: dumper.represent_mapping(
+                         'tag:yaml.org,2002:map', data.items()))
+yaml.add_representer(MetaList,
+                     lambda dumper, data: dumper.represent_sequence(
+                         'tag:yaml.org,2002:seq', data))
+
 __all__ = ['save']
 
 
 def _d(pth, data, verbose=1):
     for key, value in data.items():
-        if '__file__' not in value:
+        try:
+            with open(os.path.join(pth, value._file), 'w') as f_obj:
+                f_obj.write(yaml.dump(value, default_flow_style=False))
+        except:
             newpth = os.path.join(pth, key)
             if not os.path.isdir(newpth):
                 os.makedirs(newpth)
             save(newpth, value, verbose)
-        else:
-            write_data = value.copy()
-            del write_data['__file__']
-            f_obj = open(os.path.join(pth, value['__file__']), 'w')
-            f_obj.write(yaml.dump(write_data, default_flow_style=False))
-            f_obj.close()
 
 
 def _d2(dcmp):
