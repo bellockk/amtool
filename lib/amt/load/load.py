@@ -41,7 +41,7 @@ def _load_file(filename):
     """
     logging.debug('Loading File: %s', filename)
     with open(filename, 'r') as f_obj:
-        loaded_file_content = yaml.load(f_obj)
+        loaded_file_content = yaml.full_load(f_obj)
     logging.debug('Loaded File Content: %s', loaded_file_content)
     if isinstance(loaded_file_content, dict):
         metadict = MetaDict()
