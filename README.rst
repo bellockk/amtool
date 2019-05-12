@@ -4,13 +4,13 @@ Artifact Management Tool
 
 
 .. image:: https://img.shields.io/pypi/v/amt.svg
-        :target: https://pypi.python.org/pypi/amt
+        :target: https://pypi.python.org/pypi/AMT
 
-.. image:: https://img.shields.io/travis/bellockk/amt.svg
-        :target: https://travis-ci.org/bellockk/amt
+.. image:: https://img.shields.io/travis/bellockk/AMT.svg
+        :target: https://travis-ci.org/bellockk/AMT
 
-.. image:: https://readthedocs.org/projects/amt/badge/?version=latest
-        :target: https://amt.readthedocs.io/en/latest/?badge=latest
+.. image:: https://readthedocs.org/projects/AMT/badge/?version=latest
+        :target: https://AMT.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
 
