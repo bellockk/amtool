@@ -25,5 +25,5 @@ deploy:
     secure: PLEASE_REPLACE_ME
   on:
     tags: true
-    repo: bellockk/amt
+    repo: bellockk/amtool
     python: 3.6

@@ -3,24 +3,24 @@ Artifact Management Tool
 ========================
 
 
-.. image:: https://img.shields.io/pypi/v/AMT.svg
-        :target: https://pypi.python.org/pypi/AMT
+.. image:: https://img.shields.io/pypi/v/amtool.svg
+        :target: https://pypi.python.org/pypi/amtool
 
-.. image:: https://img.shields.io/travis/bellockk/AMT.svg
-        :target: https://travis-ci.org/bellockk/AMT
+.. image:: https://img.shields.io/travis/bellockk/amtool.svg
+        :target: https://travis-ci.org/bellockk/amtool
 
-.. image:: https://readthedocs.org/projects/AMT/badge/?version=latest
-        :target: https://AMT.readthedocs.io/en/latest/?badge=latest
+.. image:: https://readthedocs.org/projects/amtool/badge/?version=latest
+        :target: https://amtool.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
 
 
 
-AMT is meant to be a generic means of storing and manipulating artifact data in a human readable text format ideal for colaborative work.
+The Artifacts Management Tool is meant to be a generic means of storing and manipulating artifact data in a human readable text format ideal for colaborative work.
 
 
 * Free software: MIT license
-* Documentation: https://AMT.readthedocs.io.
+* Documentation: https://amtool.readthedocs.io.
 
 
 Features
