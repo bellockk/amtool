@@ -3,7 +3,7 @@ Artifact Management Tool
 ========================
 
 
-.. image:: https://img.shields.io/pypi/v/amt.svg
+.. image:: https://img.shields.io/pypi/v/AMT.svg
         :target: https://pypi.python.org/pypi/AMT
 
 .. image:: https://img.shields.io/travis/bellockk/AMT.svg
@@ -20,7 +20,7 @@ AMT is meant to be a generic means of storing and manipulating artifact data in 
 
 
 * Free software: MIT license
-* Documentation: https://amt.readthedocs.io.
+* Documentation: https://AMT.readthedocs.io.
 
 
 Features
