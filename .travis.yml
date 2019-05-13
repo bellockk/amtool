@@ -1,25 +1,14 @@
-# Config file for automatic testing at travis-ci.org
-
 language: python
 python:
-  - 3.6
-
-# Command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
+- 3.6
 install: pip install -U tox-travis
-
-# Command to run tests, e.g. python setup.py test
 script: tox
-
-# Assuming you have installed the travis-ci CLI tool, after you
-# create the Github repo and add it to Travis, run the
-# following command to finish PyPI deployment setup:
-# $ travis encrypt --add deploy.password
 deploy:
   provider: pypi
   distributions: sdist bdist_wheel
   user: bellockk
   password:
-    secure: OKGXTy8z2JErBLpjX864AbAZ947McwZoD7kzkC+l8cXviURo1HBsF02DjVxRdpW5kTTa/KF0PAvgilZeDhRPrvXj8ZUfMvyAvnu8PJ9FSSD0Q8mDjUoubMqCkO1N4yYNXFjbhLbyRd8yobkcwwMJwxOD5GtUnR68HzizW/2WDM6xxvPwuj47vMsdOJ096VotWAmNb7vOZ7syPfmPWa3AvKBygCb/zWlBSs4DOc6enScplTTKFYgNXbQ7KueUuT7gfnT+o3oFF1V3MpAogTtErbjqhQR/3WiOk+wBA8YbYUqyz95xUDP49TGfeDwVrO5O6Se2s5rDWpPTi08p30RrcpFtmDadDsR9OrdIRAi1cScfXrCSwXi2H9EvoMTkdhDDRWcyJzaWFb7vTHSXM+jxIq/EtgZidXEUmkhGNsM91KiiuphNPFKh1t8ZEOne/HGDwdsK1FaYyj0xSyfhHIICIbDvsxbAxXRBFla4wX3JIQMShZaUDh71fse2KV0apN5Un+WTtYsTgwfjHzh+ljhjg72tj4ruciH1uSHbV6qPX390ZIWbUulgmIjDEGhyTRPqZumQ9H9VbdFlhQv0msQR3OjvyD4zkilZOZaEilKYoDZApnEasqULdOnJqFkWbQjW//ft5tltX5vPkjjkoQPHENfftuGvlzyDZuzPHfG8248=
+    secure: RFJqQfApatdOkjPkoxsVXLBbo0KvbR7k1UK8+BGURdSZ9cqSbsWdrJDVObdr4xWRhWEOcG9vH9oHD5592G9Rl/jExKB9bWhwZCsUd3G0vuJjWJufrQGtgaYcMsF+7K6VGoFo6KOukV4kKErhrypb/CzyQRaVOFyKqw5c8EWdzi7h0ByiSNdYw0p9dAI7DGjaeEhAR8gbOOhhCTXZplZslYaObbI5VJYaz9oBYr4k1zYoHW7kO1dFZk0KvYEByV6V/hS8ykWA4XnMRAOHlUQ34iDahbdXrOSXsrbqVJaE44VhZbu9ncFAxWtOwTzeLNVue3iSfnBZAgS5P0uNDaTNRLv9BmEiJLYZnBc8YvLHoWj7ybm2qCz4n+vm9Rrjf8LFyYoNXu/sNrpi/RC7rBA/36u5wqTeSDZRNyKRxCcvHEajQp3cDwLz8YpbaG1+oR1JmdriadsPp1zVVQV42MLJ6pcpTppg2RlpXpSI1BVinfLaia7h7jzFAi3mU0F4VRF4YWxHu4suUdvlx4obTTjmALdUlmzl0h5PvnEgKRrgrFDCDCfouhvwuMy/aTdws43NPjJT84aJJnYAmH5lZKacEFMd6pXnVxQQc5i0K7jqRBpdiEFAaHqsyQYT2QLZMWSwdEyJe13Q1rV7mOjDcz2qtDBzC48yvPCw9M2DOj5eg94=
   on:
     tags: true
     repo: bellockk/amtool
