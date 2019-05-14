@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Tests for `amtool` package."""
+"""Tests for `amt` package."""
 
 
 import unittest
 from click.testing import CliRunner
 
-from amtool import amtool
-from amtool import cli
+from amt import amt
+from amt import cli
 
 
 class TestAmtool(unittest.TestCase):
@@ -28,7 +28,7 @@ class TestAmtool(unittest.TestCase):
         runner = CliRunner()
         result = runner.invoke(cli.main)
         assert result.exit_code == 0
-        assert 'amtool.cli.main' in result.output
+        assert 'amt.cli.main' in result.output
         help_result = runner.invoke(cli.main, ['--help'])
         assert help_result.exit_code == 0
         assert '--help  Show this message and exit.' in help_result.output

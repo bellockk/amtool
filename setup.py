@@ -31,7 +31,7 @@ setup(
     description="The Artifacts Management Tool is meant to be a generic means of storing and manipulating artifact data in a human readable text format ideal for colaborative work.",
     entry_points={
         'console_scripts': [
-            'amtool=amtool.cli:main',
+            'amt=amt.cli:main',
         ],
     },
     install_requires=requirements,

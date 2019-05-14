@@ -9,7 +9,7 @@ import click
 def main(args=None):
     """Console script for amtool."""
     click.echo("Replace this message by putting your code into "
-               "amtool.cli.main")
+               "amt.cli.main")
     click.echo("See click documentation at http://click.pocoo.org/")
     return 0
 
