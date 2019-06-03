@@ -24,10 +24,4 @@ from .init import *
 from . import add as _mod
 __all__.extend(_mod.__all__)
 from .add import *
-from . import gui as _mod
-__all__.extend(_mod.__all__)
-from .gui import *
-from . import cli as _mod
-__all__.extend(_mod.__all__)
-from .cli import *
 del(_mod)
