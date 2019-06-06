@@ -4,7 +4,7 @@
 
 __author__ = """Kenneth E. Bellock"""
 __email__ = 'ken@bellock.net'
-__version__ = '0.1.3'
+__version__ = '0.1.4'
 __all__ = []
 from . import canonical as _mod
 __all__.extend(_mod.__all__)
