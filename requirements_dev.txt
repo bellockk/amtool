@@ -10,3 +10,4 @@ twine==1.12.1
 PyYAML==5.1
 click==7.0
 click_log==0.3.2
+click_plugins==1.1.1

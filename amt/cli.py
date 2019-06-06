@@ -10,11 +10,14 @@ from amt import canonical as canon
 from amt import load
 from amt import MetaDict
 from amt import MetaList
+from pkg_resources import iter_entry_points
+from click_plugins import with_plugins
 
 
 click_log.basic_config()
 
 
+@with_plugins(iter_entry_points('amt.plugins'))
 @click.group()
 @click_log.simple_verbosity_option(default='WARNING')
 def main(args=None):
