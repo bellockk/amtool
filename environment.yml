@@ -6,9 +6,9 @@ dependencies:
   - scipy
   - pip
   - click
-  - click-log
   - PyYAML
   - pip:
     - m2r
     - sphinx-issues
     - sphinx-gallery
+    - click-log
