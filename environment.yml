@@ -6,7 +6,7 @@ dependencies:
   - scipy
   - pip
   - click
-  - click_log
+  - click-log
   - PyYAML
   - pip:
     - m2r
