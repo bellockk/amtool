@@ -6,6 +6,12 @@ __author__ = """Kenneth E. Bellock"""
 __email__ = 'ken@bellock.net'
 __version__ = '0.1.4'
 __all__ = []
+from . import uid as _mod
+__all__.extend(_mod.__all__)
+from .uid import *
+from . import render as _mod
+__all__.extend(_mod.__all__)
+from .render import *
 from . import canonical as _mod
 __all__.extend(_mod.__all__)
 from .canonical import *

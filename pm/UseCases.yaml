@@ -1,10 +1,12 @@
-- Name: Do it
+- UID: 697ae7e551824d4cbb5147f7dca8e481
+  Name: Do it
   Pre-Condition: bla bla
   Flow:
     - Step 1
     - Step 2
   Post-Condition: bla bla
-- Name: Do more 
+- UID: c3f75cbae395403a91d1d57c6d26bbd5
+  Name: Do more 
   Pre-Condition: bla bla
   Flow:
     - Step 1
