@@ -1,6 +1,10 @@
 # History
 
 
+## 0.1.6 (2019-06-24)
+
+* Debugging automated deployment to pypi.
+
 ## 0.1.5 (2019-06-24)
 
 * Added uid command.
