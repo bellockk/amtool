@@ -4,7 +4,7 @@
 
 __author__ = """Kenneth E. Bellock"""
 __email__ = 'ken@bellock.net'
-__version__ = '0.1.5'
+__version__ = '0.1.6'
 __all__ = []
 from . import uid as _mod
 __all__.extend(_mod.__all__)
