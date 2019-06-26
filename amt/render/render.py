@@ -17,6 +17,7 @@ import sys
 import copy
 import logging
 from mako.template import Template
+from mako import exceptions
 
 __all__ = ['render']
 SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -42,13 +43,19 @@ def _render(artifacts, uids):
             if isinstance(value, (dict, list, tuple)):
                 _render(value, uids)
             elif isinstance(value, str):
-                artifacts[key] = Template(value).render(UID=uids)
+                try:
+                    artifacts[key] = Template(value).render(UID=uids)
+                except:
+                    logging.error(exceptions.text_error_template().render())
     elif isinstance(artifacts, (list, tuple)):
         for index, value in enumerate(artifacts):
             if isinstance(value, (dict, list, tuple)):
                 _render(value, uids)
             elif isinstance(value, str):
-                artifacts[index] = Template(value).render(UID=uids)
+                try:
+                    artifacts[index] = Template(value).render(UID=uids)
+                except:
+                    logging.error(exceptions.text_error_template().render())
 
 
 def render(source, engine='mako'):
