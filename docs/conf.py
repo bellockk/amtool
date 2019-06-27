@@ -42,7 +42,7 @@ extensions = [
     'sphinx.ext.imgconverter']
 
 # Github repository
-issues_github_path = 'bellockk/alphashape'
+issues_github_path = 'bellockk/amtool'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
