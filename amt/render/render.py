@@ -18,13 +18,24 @@ import copy
 import logging
 from mako.template import Template
 from mako import exceptions
+from jinja2 import Environment
+from jinja2 import BaseLoader
 
-__all__ = ['render']
+
+__all__ = ['render', 'rendernode']
 SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.join(os.path.dirname(SCRIPT_PATH), 'load'))
 sys.path.insert(0, os.path.join(os.path.dirname(SCRIPT_PATH), 'uid'))
 from load import load
 from uid import uid
+
+
+def render_node(value, uids):
+    try:
+        return Template(value).render(UID=uids)
+    except:
+        logging.error(exceptions.text_error_template().render())
+        return value
 
 
 def _render(artifacts, uids):
@@ -43,19 +54,13 @@ def _render(artifacts, uids):
             if isinstance(value, (dict, list, tuple)):
                 _render(value, uids)
             elif isinstance(value, str):
-                try:
-                    artifacts[key] = Template(value).render(UID=uids)
-                except:
-                    logging.error(exceptions.text_error_template().render())
+                artifacts[key] = render_node(value, uids)
     elif isinstance(artifacts, (list, tuple)):
         for index, value in enumerate(artifacts):
             if isinstance(value, (dict, list, tuple)):
                 _render(value, uids)
             elif isinstance(value, str):
-                try:
-                    artifacts[index] = Template(value).render(UID=uids)
-                except:
-                    logging.error(exceptions.text_error_template().render())
+                artifacts[index] = Template(value).render(UID=uids)
 
 
 def render(source, engine='mako'):
