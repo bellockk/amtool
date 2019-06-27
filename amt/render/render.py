@@ -30,7 +30,7 @@ from load import load
 from uid import uid
 
 
-def render_node(value, uids):
+def rendernode(value, uids):
     try:
         return Template(value).render(UID=uids)
     except:
@@ -54,7 +54,7 @@ def _render(artifacts, uids):
             if isinstance(value, (dict, list, tuple)):
                 _render(value, uids)
             elif isinstance(value, str):
-                artifacts[key] = render_node(value, uids)
+                artifacts[key] = rendernode(value, uids)
     elif isinstance(artifacts, (list, tuple)):
         for index, value in enumerate(artifacts):
             if isinstance(value, (dict, list, tuple)):
