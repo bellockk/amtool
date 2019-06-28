@@ -38,14 +38,14 @@ def rendernode(value, uids):
     logged as an error, and the original content of the node must be returned.`
 
     Args:
-        value (str): The content of the node to be rendered in the artifacts
+        value (string): The content of the node to be rendered in the artifacts
                      tree.
 
         uids (dict): Map of artifacts to unique identifiers.
 
     Returns:
 
-        str: The renderend node.
+        string: The renderend node.
     """
     try:
         return Template(value).render(UID=uids)
@@ -91,7 +91,7 @@ def render(source):
     structure.
 
     Args:
-        source (str): The directory or file to be loaded.
+        source (string): The directory or file to be loaded.
 
     Returns:
         dict.  The fully read data structure containing all artifacts from the

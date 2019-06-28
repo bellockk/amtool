@@ -68,7 +68,7 @@ def uid(source):
         containing documenents with unique id's.
 
     Returns:
-        dict.  The return dictioanry.
+        dict:  The return dictioanry.
     """
     logging.debug('Creating uid map: %s', source)
     if isinstance(source, str):
