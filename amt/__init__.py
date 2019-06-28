@@ -24,7 +24,4 @@ from .load import *
 from . import meta as _mod
 __all__.extend(_mod.__all__)
 from .meta import *
-from . import init as _mod
-__all__.extend(_mod.__all__)
-from .init import *
 del(_mod)
