@@ -28,7 +28,7 @@ def newuid():
     Get a unique id string.
 
     Returns:
-       string: a unique id string
+       string: A unique id string.
     """
     return uuid.uuid4().hex
 
@@ -42,7 +42,7 @@ def _uid(artifacts):
         artifacts (dict): Input dictionary.
 
     Returns:
-        dict: returned dictionary
+        dict: Returned dictionary.
     """
     results = {}
     if isinstance(artifacts, dict):

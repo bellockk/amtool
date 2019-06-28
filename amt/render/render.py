@@ -18,8 +18,6 @@ import copy
 import logging
 from mako.template import Template
 from mako import exceptions
-from jinja2 import Environment
-from jinja2 import BaseLoader
 
 
 __all__ = ['render', 'rendernode']
@@ -31,6 +29,24 @@ from uid import uid
 
 
 def rendernode(value, uids):
+    """
+    The node renderer.  This is a mako template implementation of a node
+    renderer, but is intended to be overwritten by users wanting to use a
+    different rendering engine.
+
+    `Note:  If there is any error during the rendering of a node, it should be
+    logged as an error, and the original content of the node must be returned.`
+
+    Args:
+        value (str): The content of the node to be rendered in the artifacts
+                     tree.
+
+        uids (dict): Map of artifacts to unique identifiers.
+
+    Returns:
+
+        str: The renderend node.
+    """
     try:
         return Template(value).render(UID=uids)
     except:
@@ -45,6 +61,8 @@ def _render(artifacts, uids):
 
     Args:
         artifacts (dict): Input dictionary.
+
+        uids (dict): Map of artifacts to unique identifiers.
 
     Returns:
         dict: returned dictionary
@@ -63,7 +81,7 @@ def _render(artifacts, uids):
                 artifacts[index] = Template(value).render(UID=uids)
 
 
-def render(source, engine='mako'):
+def render(source):
     """
     Render a set of artifacts.
 
@@ -74,9 +92,6 @@ def render(source, engine='mako'):
 
     Args:
         source (str): The directory or file to be loaded.
-
-    Kwargs:
-        verbose (int): Level to perform logging at.
 
     Returns:
         dict.  The fully read data structure containing all artifacts from the

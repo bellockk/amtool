@@ -27,7 +27,4 @@ from .meta import *
 from . import init as _mod
 __all__.extend(_mod.__all__)
 from .init import *
-from . import add as _mod
-__all__.extend(_mod.__all__)
-from .add import *
 del(_mod)

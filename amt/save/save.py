@@ -33,16 +33,16 @@ yaml.add_representer(MetaList,
 __all__ = ['save']
 
 
-def _d(pth, data, verbose=1):
+def _d(path, data):
     for key, value in data.items():
         try:
-            with open(os.path.join(pth, value._file), 'w') as f_obj:
+            with open(os.path.join(path, value._file), 'w') as f_obj:
                 f_obj.write(yaml.dump(value, default_flow_style=False))
         except:
-            newpth = os.path.join(pth, key)
+            newpth = os.path.join(path, key)
             if not os.path.isdir(newpth):
                 os.makedirs(newpth)
-            save(newpth, value, verbose)
+            save(newpth, value)
 
 
 def _d2(dcmp):
@@ -64,13 +64,23 @@ def _d2(dcmp):
             shutil.copytree(os.path.join(dcmp.right, fname),
                             os.path.join(dcmp.left, fname))
     for key, value in dcmp.subdirs.items():
-            _d2(value)
+        _d2(value)
 
 
-def save(pth, data, header=None, footer=None, verbose=1):
-    if pth.lower().endswith('.yaml'):
+def save(path, data, header=None, footer=None):
+    """
+    Save an artifacts tree to a file or directory location.
+
+    Args:
+        path (str): The file or directory location to save the artifacts tree
+                    to.
+        data (str or list or dict): The artifacts tree.
+        header (:obj:`str`, optional): Header for artifacts files.
+        footer (:obj:`str`, optional): Footer for artifacts files.
+    """
+    if path.lower().endswith('.yaml'):
         write_data = data.copy()
-        f_obj = open(pth, 'w')
+        f_obj = open(path, 'w')
         if header:
             f_obj.write(header)
         f_obj.write(yaml.dump(write_data, default_flow_style=False))
@@ -79,6 +89,6 @@ def save(pth, data, header=None, footer=None, verbose=1):
         f_obj.close()
     else:
         tmp = tempfile.mkdtemp()
-        _d(tmp, data, verbose)
-        _d2(dircmp(pth, tmp))
+        _d(tmp, data)
+        _d2(dircmp(path, tmp))
         shutil.rmtree(tmp)

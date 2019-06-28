@@ -20,7 +20,7 @@ import os
 import shutil
 
 
-def init(verbose=1):
+def init():
     """Utilize parsed arguments."""
     if os.path.exists('.amt'):
         shutil.rmtree('.amt')

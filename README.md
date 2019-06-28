@@ -42,8 +42,6 @@ Command line tools are executed through subcommands of the amt command.
 
 | Command    | Usage                                                              |
 |:----------:|:-------------------------------------------------------------------|
-| gui        | Invokes the graphical user interface to the amt tool.              |
-| add        | Adds a new object to the current object tree.                      |
 | dump       | Dumps an ascii representation of the object tree.                  |
 | cannonical | Enforces the canonical representation of the object tree.          |
 

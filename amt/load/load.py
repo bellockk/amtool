@@ -55,7 +55,7 @@ def _load_file(filename):
         return metadict
 
 
-def load(target, toplevel=True, verbose=1):
+def load(target, toplevel=True):
     """
     Load a directory or file containing artifacts.
 
@@ -66,13 +66,12 @@ def load(target, toplevel=True, verbose=1):
 
     Args:
         target (str): The directory or file to be loaded.
-
-    Kwargs:
-        verbose (int): Level to perform logging at.
+        toplevel (bool, optional): Utilized in recursive operations with this
+            function.
 
     Returns:
-        dict.  The fully read data structure containing all artifacts from the
-        loaded target.
+        dict or list or string:  The fully read data structure containing all
+            artifacts from the loaded target.
     """
     logging.debug('Loading Target: %s', target)
     basename = os.path.basename(target)
