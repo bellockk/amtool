@@ -1,6 +1,10 @@
 # History
 
 
+## 0.1.9 (2019-07-02)
+
+* Adding short descriptions to commands.
+
 ## 0.1.8 (2019-07-02)
 
 * Package cleanup.
