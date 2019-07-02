@@ -8,6 +8,9 @@ from amt import uid as amtuid
 @click.command()
 @click.argument('PATH')
 def uid(path):
+    """
+    Read the content of artifacts uniquely tagged.
+    """
     yaml.add_representer(MetaDict,
                          lambda dumper, data: dumper.represent_mapping(
                              'tag:yaml.org,2002:map', data.items()))

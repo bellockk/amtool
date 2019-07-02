@@ -8,6 +8,9 @@ from amt import MetaList
 @click.command()
 @click.argument('PATH')
 def dump(path):
+    """
+    Read the contents of the artifact tree.
+    """
     yaml.add_representer(MetaDict,
                          lambda dumper, data: dumper.represent_mapping(
                              'tag:yaml.org,2002:map', data.items()))
