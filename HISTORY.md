@@ -1,6 +1,10 @@
 # History
 
 
+## 0.1.6 (2019-07-02)
+
+* Documentation cleanup.
+
 ## 0.1.6 (2019-06-24)
 
 * Debugging automated deployment to pypi.
