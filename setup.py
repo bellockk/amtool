@@ -45,7 +45,7 @@ setup(
     include_package_data=True,
     keywords='amtool',
     name='amtool',
-    packages=find_packages(include=['amtool']),
+    packages=find_packages(include=['amt']),
     setup_requires=setup_requirements,
     test_suite='tests',
     tests_require=test_requirements,

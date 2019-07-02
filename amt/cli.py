@@ -34,7 +34,7 @@ for m in next(os.walk(SCRIPT_PATH))[1]:
                     c, click.core.Command)]:
             main.add_command(command)
     except ModuleNotFoundError:
-        logging.debug('Could not load cli command from %s.command', m)
+        pass
 
 
 if __name__ == "__main__":
