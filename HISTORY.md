@@ -1,7 +1,11 @@
 # History
 
 
-## 0.1.6 (2019-07-02)
+## 0.1.8 (2019-07-02)
+
+* Package cleanup.
+
+## 0.1.7 (2019-07-02)
 
 * Documentation cleanup.
 
