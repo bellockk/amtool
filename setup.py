@@ -17,9 +17,9 @@ requirements = ['Click>=6.0',
                 'mako>=1.0.12',
                 'PyYAML>=5.1']
 
-setup_requirements = [ ]
+setup_requirements = []
 
-test_requirements = [ ]
+test_requirements = []
 
 setup(
     author="Kenneth E. Bellock",
@@ -32,7 +32,10 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
     ],
-    description="The Artifacts Management Tool is meant to be a generic means of storing and manipulating artifact data in a human readable text format ideal for colaborative work.",
+    description=(
+        "The Artifacts Management Tool is meant to be a generic means of "
+        "storing and manipulating artifact data in a human readable text "
+        "format ideal for colaborative work."),
     entry_points={
         'console_scripts': [
             'amt=amt.cli:main',
@@ -45,7 +48,9 @@ setup(
     include_package_data=True,
     keywords='amtool',
     name='amtool',
-    packages=find_packages(include=['amt']),
+    packages=find_packages(include=[
+        'amt', 'amt.canonical', 'amt.file_io', 'amt.load', 'amt.meta',
+        'amt.render', 'amt.save', 'amt.uid']),
     setup_requires=setup_requirements,
     test_suite='tests',
     tests_require=test_requirements,
